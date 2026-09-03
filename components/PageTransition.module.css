@@ -1,0 +1,9 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-transition);
+  background: var(--ink-900);
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+}

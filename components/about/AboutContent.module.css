@@ -1,0 +1,95 @@
+.about {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding:
+    calc(var(--nav-height) + clamp(1.5rem, 4vh, 2.5rem))
+    var(--gutter)
+    calc(var(--bottom-meta) + clamp(2rem, 5vh, 3rem));
+}
+
+.layout {
+  --portrait-size: 20rem;
+
+  display: grid;
+  grid-template-columns: minmax(0, 22.5rem) var(--portrait-size);
+  align-items: start;
+  gap: clamp(2.5rem, 5vw, 4rem);
+  width: min(100%, calc(22.5rem + 4rem + var(--portrait-size)));
+}
+
+.aboutItem {
+  opacity: 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  height: var(--portrait-size);
+  gap: clamp(1.5rem, 3vh, 2rem);
+}
+
+.bio {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.58;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: auto;
+}
+
+.link {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-muted);
+  transition: color var(--dur-fast) var(--ease-out-expo);
+}
+
+.link:hover {
+  color: var(--text-muted);
+}
+
+.portrait {
+  position: relative;
+  width: var(--portrait-size);
+  aspect-ratio: 1 / 1;
+  background: var(--surface);
+}
+
+.portraitImage {
+  object-fit: cover;
+  object-position: center;
+}
+
+@media (max-width: 900px) {
+  .about {
+    align-items: flex-start;
+    padding-top: calc(var(--nav-height) + clamp(2rem, 6vh, 3rem));
+  }
+
+  .layout {
+    --portrait-size: min(20rem, 100%);
+
+    grid-template-columns: 1fr;
+    gap: clamp(2.5rem, 6vh, 3.5rem);
+    max-width: 22.5rem;
+  }
+
+  .content {
+    height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aboutItem {
+    opacity: 1;
+  }
+}

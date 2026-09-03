@@ -1,0 +1,222 @@
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-lightbox);
+  background: transparent;
+}
+
+.imageWrap {
+  position: fixed;
+  overflow: hidden;
+  z-index: 1;
+  --slide-step: 100vw;
+  will-change: top, left, width, height;
+  cursor: zoom-out;
+}
+
+.imageWrap img {
+  object-fit: cover;
+}
+
+.morphLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.morphLayer img {
+  object-fit: cover;
+}
+
+.cardCrop img {
+  object-position: calc(var(--card-x, 50) * 1%) calc(var(--card-y, 50) * 1%);
+  transform-origin: calc(var(--card-x, 50) * 1%) calc(var(--card-y, 50) * 1%);
+  transform: scale(var(--card-zoom, 1));
+}
+
+.slideTrack {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.slide {
+  position: relative;
+  flex-shrink: 0;
+  width: var(--slide-step);
+  height: 100%;
+  backface-visibility: hidden;
+}
+
+.slide img {
+  object-fit: cover;
+}
+
+/* ---- Journal entry — apothecary-label style (Le Labo reference) ---- */
+.journal {
+  position: fixed;
+  left: var(--gutter);
+  bottom: calc(var(--bottom-meta) + 2.5rem);
+  z-index: var(--z-chrome);
+  max-width: min(27rem, 42vw);
+  font-family: var(--font-mono-label), ui-monospace, "SFMono-Regular", Menlo,
+    monospace;
+  color: var(--text);
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.55), 0 1px 3px rgba(0, 0, 0, 0.85),
+    0 2px 16px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+}
+
+/* Soft corner scrim so light text stays legible over bright photos */
+.journal::before {
+  content: "";
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: min(48rem, 62vw);
+  height: min(36rem, 64vh);
+  background: radial-gradient(
+    120% 120% at 0% 100%,
+    rgba(0, 0, 0, 0.78),
+    rgba(0, 0, 0, 0.2) 58%,
+    rgba(0, 0, 0, 0) 74%
+  );
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Line-by-line reveal is driven by GSAP (see DrinkLightbox.tsx) so it
+   stays in sync with the open morph instead of starting behind it. */
+
+.journalEyebrow {
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin-bottom: 0.75rem;
+}
+
+.journalName {
+  font-size: clamp(1.25rem, 2vw, 1.6rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.journalSub {
+  font-size: var(--text-small);
+  line-height: 1.5;
+  opacity: 0.78;
+}
+
+.journalSub:first-of-type {
+  margin-top: 0.5rem;
+}
+
+.journalRule {
+  display: block;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.22;
+  margin: 0.95rem 0;
+}
+
+.journalEntry {
+  font-size: var(--text-small);
+  line-height: 1.65;
+  opacity: 0.92;
+  max-width: 24rem;
+}
+
+.journalMeta {
+  display: grid;
+  row-gap: 0.4rem;
+  font-size: var(--text-micro);
+}
+
+.journalMeta > div {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  column-gap: 0.75rem;
+  align-items: baseline;
+}
+
+.journalMeta dt {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  opacity: 0.62;
+}
+
+.journalMeta dd {
+  letter-spacing: 0.01em;
+}
+
+.thumbs {
+  position: fixed;
+  left: calc(50% + clamp(2.5rem, 5vw, 3.75rem));
+  right: auto;
+  bottom: var(--bottom-meta);
+  display: flex;
+  gap: 0.375rem;
+  z-index: var(--z-chrome);
+  max-width: min(22rem, calc(50vw - var(--gutter)));
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-block: 2px;
+}
+
+.thumbs::-webkit-scrollbar {
+  display: none;
+}
+
+.thumb {
+  position: relative;
+  flex-shrink: 0;
+  width: 3.5rem;
+  height: 2.25rem;
+  overflow: hidden;
+  background: var(--surface);
+  opacity: 0.35;
+  border: 1px solid transparent;
+  transition: opacity var(--dur-fast) ease, transform var(--dur-fast) ease,
+    border-color var(--dur-fast) ease;
+}
+
+.thumb img {
+  object-fit: cover;
+  object-position: calc(var(--card-x, 50) * 1%) calc(var(--card-y, 50) * 1%);
+  transform-origin: calc(var(--card-x, 50) * 1%) calc(var(--card-y, 50) * 1%);
+  transform: scale(var(--card-zoom, 1));
+}
+
+.thumb:hover {
+  opacity: 0.7;
+}
+
+.thumbActive {
+  opacity: 1;
+  transform: translateY(-2px);
+  border-color: var(--text);
+}
+
+@media (max-width: 768px) {
+  .thumbs {
+    left: calc(50% + 2rem);
+    max-width: calc(50vw - var(--gutter) - 1rem);
+  }
+
+  .journal {
+    max-width: calc(100vw - 2 * var(--gutter));
+    bottom: calc(var(--bottom-meta) + 3.5rem);
+  }
+
+  .journalEntry {
+    display: none;
+  }
+}
+

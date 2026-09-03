@@ -1,0 +1,68 @@
+/* ============================================================
+   DESIGN TOKENS — single source of truth for the entire site.
+   Pure grayscale. Color only ever comes from photography.
+   ============================================================ */
+
+:root {
+  /* ---- Ink ramp (dark base) ---- */
+  --ink-950: #0a0a0a; /* page background */
+  --ink-900: #101010;
+  --ink-800: #181818; /* raised surfaces, image placeholders */
+  --ink-700: #242424; /* borders, dividers */
+  --ink-600: #3a3a3a;
+  --ink-500: #585858;
+  --ink-400: #8a8a8a; /* muted text */
+  --ink-300: #b4b4b4;
+  --ink-200: #d8d8d8;
+  --ink-100: #efefef; /* primary text */
+
+  /* ---- Semantic ---- */
+  --bg: var(--ink-950);
+  --surface: var(--ink-800);
+  --line: rgba(239, 239, 239, 0.12);
+  --text: var(--ink-100);
+  --text-muted: rgba(239, 239, 239, 0.55);
+  --text-faint: rgba(239, 239, 239, 0.3);
+
+  /* ---- Typography ---- */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-source-serif), "Times New Roman", Times, serif;
+
+  /* Oversized, viewport-relative display scale */
+  --text-display: clamp(3rem, 11vw, 11rem); /* hero / project titles */
+  --text-title: clamp(2rem, 5vw, 4.5rem); /* page + section titles */
+  --text-lead: clamp(1.125rem, 1.8vw, 1.5rem); /* intro paragraphs */
+  --text-body: 1rem;
+  --text-small: 0.8125rem;
+  --text-micro: 0.6875rem; /* mono labels, indices, metadata */
+
+  --tracking-wide: 0.14em;
+  --leading-tight: 0.95;
+  --leading-body: 1.6;
+
+  /* ---- Spacing & layout ---- */
+  --gutter: clamp(1.25rem, 4vw, 4rem);
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 2rem;
+  --space-lg: clamp(3rem, 8vh, 6rem);
+  --space-xl: clamp(6rem, 16vh, 12rem);
+  --nav-height: 4.5rem;
+  --bottom-meta: var(--gutter);
+
+  /* ---- Motion (shared with GSAP via lib/motion.ts) ---- */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 0.3s;
+  --dur-base: 0.6s;
+  --dur-slow: 1.1s;
+
+  /* ---- Z layers ---- */
+  --z-nav: 100;
+  --z-lightbox: 250;
+  --z-chrome: 260; /* nav + page counter — above lightbox */
+  --z-transition: 200;
+  --z-grain: 400;
+  --z-preloader: 450;
+}

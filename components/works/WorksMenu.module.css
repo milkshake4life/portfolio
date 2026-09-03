@@ -1,0 +1,388 @@
+/* Figma menu sheet docked left; detail pane open on the right */
+.page {
+  --paper: #f5f0eb;
+  --paper-ink: #111111;
+  --paper-meta: #222222;
+  --paper-muted: #888888;
+  --menu-width: min(480px, 100%);
+  /* Serving fills the detail pane so the drink can center large */
+  --card-width: 100%;
+  --stage-gap: clamp(2.5rem, 6vw, 5.5rem);
+
+  position: relative;
+  box-sizing: border-box;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  background: var(--bg);
+  color: var(--text);
+  padding: calc(var(--nav-height) + var(--space-md)) var(--gutter)
+    calc(var(--space-lg) + 1.5rem);
+}
+
+/* Back control — matches bottom wordmark; GSAP owns opacity */
+.back {
+  position: absolute;
+  top: calc(var(--nav-height) + 0.35rem);
+  left: var(--gutter);
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: var(--text-small);
+  letter-spacing: var(--tracking-wide);
+  line-height: 1;
+  text-transform: none;
+  color: var(--text-muted);
+  opacity: 0;
+  visibility: hidden;
+  transition: color var(--dur-fast) ease;
+}
+
+.back:hover {
+  color: var(--text);
+}
+
+.backArrow {
+  font-size: 0.85em;
+  line-height: 1;
+}
+
+.stage {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0;
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+/* When profile is open, serving owns the stage */
+.isProfile .stage {
+  max-width: 72rem;
+  justify-content: center;
+}
+
+.isProfile:has([data-drink-wide]) .stage {
+  max-width: 94rem;
+}
+
+.isProfile .menu,
+.isProfile .split {
+  /* Out of flow so the drink + card can center in the full stage */
+  position: absolute;
+  pointer-events: none;
+}
+
+.isProfile .split {
+  width: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.isProfile .detailPane {
+  flex: 1 1 auto;
+  width: 100%;
+  overflow: visible;
+}
+
+/* Paper — exact Figma: #f5f0eb, 40×52 padding, max 480 */
+.menu {
+  width: var(--menu-width);
+  flex-shrink: 0;
+  background: var(--paper);
+  color: var(--paper-ink);
+  padding: 40px 52px;
+  margin-right: clamp(1rem, 2.5vw, 1.5rem);
+  /* GSAP entrance — whole sheet rises as one */
+  opacity: 0;
+}
+
+/* Quiet vertical rule — sits close to the paper, splits the table */
+.split {
+  width: 1px;
+  align-self: stretch;
+  flex-shrink: 0;
+  margin-right: var(--stage-gap);
+  background: var(--line);
+  opacity: 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 52px;
+}
+
+.headerMeta {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--paper-meta);
+}
+
+.titleBlock {
+  margin-bottom: 32px;
+}
+
+.title {
+  font-size: clamp(22px, 5vw, 32px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--paper-ink);
+  margin-bottom: 12px;
+}
+
+.titleRule {
+  display: block;
+  width: 187px;
+  height: 1px;
+  background: var(--paper-ink);
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  margin-top: 36px;
+}
+
+.section {
+  margin-bottom: 42px;
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--paper-ink);
+  margin-bottom: 14px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 6px;
+  color: inherit;
+  transition: opacity var(--dur-fast) ease;
+}
+
+.item:last-child {
+  margin-bottom: 0;
+}
+
+.itemHasNote {
+  margin-bottom: 10px;
+}
+
+.itemCopy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.itemName {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--paper-ink);
+  line-height: 1.25;
+}
+
+.itemNote {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--paper-muted);
+  margin-top: 1px;
+}
+
+.itemPrice {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--paper-ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.item:disabled {
+  cursor: default;
+}
+
+/* Dim non-active rows when a project is selected */
+.isOpen .item:not(.itemActive) {
+  opacity: 0.38;
+}
+
+.isOpen .item:not(.itemActive):hover {
+  opacity: 0.7;
+}
+
+/* Right side — height follows the menu; card is centered in an overlay */
+.detailPane {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+  overflow: hidden;
+  /* GSAP entrance with the menu */
+  opacity: 0;
+}
+
+.cardFrame {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  font-size: var(--text-small);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-faint);
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Never sit under the serving — drink + profile both own the pane */
+.isOpen .placeholder,
+.isProfile .placeholder {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.cardSlot {
+  width: var(--card-width);
+  max-width: 100%;
+  height: 100%;
+  color: var(--text);
+  opacity: 0;
+  visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardSlot > [data-card-inner] {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.isOpen .cardFrame {
+  pointer-events: auto;
+}
+
+/* Laptop mockup may sit slightly wider than the pane */
+.isOpen .detailPane:has([data-drink-wide]),
+.isOpen .cardFrame:has([data-drink-wide]) {
+  overflow: visible;
+}
+
+.isProfile .cardFrame {
+  position: relative;
+  inset: auto;
+  min-height: min(70svh, 560px);
+  overflow: visible;
+}
+
+.isProfile .cardSlot {
+  width: min(100%, 72rem);
+  height: auto;
+  overflow: visible;
+}
+
+.isProfile .cardSlot:has([data-drink-wide]) {
+  width: min(100%, 94rem);
+}
+
+@media (max-width: 899px) {
+  .page {
+    align-items: flex-start;
+  }
+
+  .back {
+    top: calc(var(--nav-height) + 0.15rem);
+  }
+
+  .stage {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .menu {
+    width: 100%;
+    max-width: var(--menu-width);
+    margin: 0 auto;
+    padding: 32px 28px;
+  }
+
+  .split {
+    width: min(480px, 100%);
+    height: 1px;
+    align-self: center;
+    margin: 1.25rem auto 0;
+  }
+
+  .detailPane {
+    align-self: auto;
+    min-height: 5rem;
+    width: 100%;
+    max-width: var(--menu-width);
+    margin: 0 auto;
+  }
+
+  .isOpen .detailPane {
+    min-height: auto;
+    padding-block: 1.5rem 0.5rem;
+  }
+
+  .isProfile .detailPane {
+    max-width: 100%;
+  }
+
+  .cardSlot {
+    width: min(var(--card-width), 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu,
+  .split,
+  .detailPane {
+    opacity: 1;
+  }
+}

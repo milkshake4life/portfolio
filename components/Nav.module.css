@@ -1,0 +1,45 @@
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-chrome);
+  height: var(--nav-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--gutter);
+  mix-blend-mode: difference; /* stays legible over imagery */
+}
+
+.wordmark {
+  position: fixed;
+  bottom: var(--bottom-meta);
+  left: 0;
+  z-index: var(--z-chrome);
+  padding: 0 var(--gutter);
+  font-size: var(--text-small);
+  letter-spacing: var(--tracking-wide);
+  line-height: 1;
+  color: var(--text-muted);
+}
+
+.links {
+  display: flex;
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.link {
+  font-family: inherit;
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--ink-100);
+  opacity: 0.5;
+  transition: opacity var(--dur-fast) ease;
+}
+
+.link:hover,
+.active {
+  opacity: 1;
+}

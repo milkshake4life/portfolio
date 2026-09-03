@@ -1,0 +1,140 @@
+.gallery {
+  width: 100%;
+}
+
+.viewport {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  gap: clamp(1.5rem, 3vw, 3.5rem);
+  --card-half-w: calc(min(58svh, 34rem) * 3 / 8);
+  padding-left: calc(50vw - var(--card-half-w));
+  /* Extra room so the last card can scroll to center */
+  padding-right: calc(50vw - var(--card-half-w));
+  will-change: transform;
+}
+
+.item {
+  position: relative;
+  flex-shrink: 0;
+  opacity: 0;
+}
+
+.openBtn {
+  display: block;
+  cursor: zoom-in;
+}
+
+.media {
+  position: relative;
+  height: min(58svh, 34rem);
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.mediaHidden {
+  visibility: hidden;
+}
+
+.media img {
+  object-fit: cover;
+  object-position: calc(var(--card-x, 50) * 1%) calc(var(--card-y, 50) * 1%);
+  transform-origin: calc(var(--card-x, 50) * 1%) calc(var(--card-y, 50) * 1%);
+  transform: scale(var(--card-zoom, 1));
+  transition: transform var(--dur-base) var(--ease-out-expo);
+}
+
+.openBtn:hover .media img {
+  transform: scale(calc(var(--card-zoom, 1) * 1.03));
+}
+
+.caption {
+  position: absolute;
+  top: calc(100% + 0.875rem);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-sm);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity var(--dur-base) var(--ease-out-expo),
+    transform var(--dur-base) var(--ease-out-expo);
+  pointer-events: none;
+}
+
+.captionIndex {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.captionNotes {
+  min-width: 0;
+  max-width: 58%;
+  text-align: right;
+  white-space: normal;
+  line-height: 1.35;
+}
+
+.item:hover .caption {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.counter {
+  position: fixed;
+  bottom: var(--bottom-meta);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-chrome);
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+  font-family: inherit;
+  font-size: var(--text-body);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  line-height: 1;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.counterSep {
+  color: var(--text);
+  opacity: 0.45;
+}
+
+.counterDigit {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.counterDigitTrack {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+}
+
+.counterDigitTrack span {
+  height: 1em;
+  line-height: 1;
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    opacity: 1;
+  }
+}

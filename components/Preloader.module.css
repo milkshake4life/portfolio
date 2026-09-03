@@ -1,0 +1,40 @@
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-preloader);
+  background: var(--ink-950);
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+}
+
+.stage {
+  position: relative;
+  width: min(100%, 56rem);
+  min-height: 4.5em;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.line {
+  grid-area: 1 / 1;
+  margin: 0;
+  max-width: 100%;
+  font-family: inherit;
+  font-weight: 400;
+  font-size: clamp(1.5rem, 4.2vw, 2.75rem);
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  opacity: 0;
+  will-change: opacity, transform, filter;
+  text-wrap: balance;
+}
+
+/* Keep the longest phrase on a single line; scale down on narrow viewports. */
+.lineNowrap {
+  white-space: nowrap;
+  font-size: clamp(0.95rem, 3.15vw, 2.75rem);
+  text-wrap: nowrap;
+}

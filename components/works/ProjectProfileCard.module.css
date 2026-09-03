@@ -1,0 +1,424 @@
+/* Cafe serving — drink first; profile card on request */
+.serving {
+  --drink-w: 831;
+  --drink-h: 864;
+  --drink-scale: 1;
+  --paper: #f2eee4;
+  --paper-edge: #e7e1d3;
+  --ink: #17140f;
+  --ink-soft: #57503f;
+  --line: rgba(23, 20, 15, 0.16);
+  --seal: #7a3324;
+  --font-card: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-card-serif: var(--font-source-serif), "Times New Roman", Times, serif;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  width: 100%;
+  height: 100%;
+  color: inherit;
+  text-align: left;
+}
+
+/* ---- Drink column ---- */
+.drinkBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.isDrink .drinkBlock {
+  /* Fill the detail pane; hero is centered, cue is pinned separately */
+  container-type: size;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.75rem;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  overflow: hidden;
+  /* Hit targets stay on the phone — not the empty pane */
+  pointer-events: none;
+}
+
+.drink {
+  position: relative;
+  overflow: visible;
+  cursor: zoom-in;
+  background: transparent;
+  padding: 0;
+  pointer-events: auto;
+}
+
+.isDrink .drink {
+  /* Contained by the right pane — no overflow past the menu card */
+  position: relative;
+  width: min(
+    calc(70cqw * var(--drink-scale)),
+    calc((100cqh - 3.25rem) * var(--drink-w) / var(--drink-h) * var(--drink-scale)),
+    calc(520px * var(--drink-scale))
+  );
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: var(--drink-w) / var(--drink-h);
+}
+
+.isDrink .drinkWide {
+  width: min(
+    110cqw,
+    calc((100cqh - 3.25rem) * var(--drink-w) / var(--drink-h))
+  );
+  max-width: none;
+}
+
+.isDrink .drinkBlock:has(.drinkWide) {
+  overflow: visible;
+}
+
+.drinkImg {
+  object-fit: contain;
+  object-position: center;
+  background: transparent;
+  image-rendering: auto;
+}
+
+.isDrink .drink:hover .drinkImg {
+  transform: scale(1.015);
+  transition: transform var(--dur-base) var(--ease-out-expo);
+}
+
+.isDrink .cue {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1.5rem;
+  flex-shrink: 0;
+  transition:
+    color var(--dur-fast) ease,
+    text-shadow var(--dur-fast) ease;
+}
+
+/* Glow only when the phone itself is hovered — not the empty pane */
+.isDrink .drink:hover ~ .cue {
+  color: var(--text);
+  text-shadow:
+    0 0 10px rgba(239, 239, 239, 0.45),
+    0 0 22px rgba(239, 239, 239, 0.2);
+}
+
+.isProfile .drinkBlock {
+  width: min(520px, 48vw);
+  height: auto;
+  position: relative;
+  flex-shrink: 0;
+  min-width: min(520px, 48vw);
+}
+
+/* Laptops: same height as the phone seat so they sit like Scope / Studio */
+.isProfile .drinkBlock:has(.drinkWide) {
+  --phone-h: calc(520px * 864 / 831);
+  width: min(calc(var(--phone-h) * var(--drink-w) / var(--drink-h)), 44vw);
+  min-width: min(calc(var(--phone-h) * var(--drink-w) / var(--drink-h)), 44vw);
+}
+
+.isProfile .drink {
+  position: relative;
+  left: auto;
+  top: auto;
+  translate: none;
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  aspect-ratio: var(--drink-w) / var(--drink-h);
+  cursor: default;
+}
+
+.isProfile .cue {
+  /* Out of flow so the hero centers on the card, same as phones */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cue {
+  margin: 0;
+  flex-shrink: 0;
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-faint);
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ---- Case study card — sized to match the menu sheet (480 / 40×52) ---- */
+.card {
+  flex: 0 0 auto;
+  width: min(480px, 100%);
+  max-width: 480px;
+  background: var(--paper);
+  border: 1px solid var(--paper-edge);
+  color: var(--ink);
+  padding: 40px 52px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  font-family: var(--font-card);
+  box-shadow:
+    0 40px 80px -30px rgba(0, 0, 0, 0.7),
+    0 2px 0 rgba(0, 0, 0, 0.03);
+  position: relative;
+}
+
+/* Drink mode: card must NOT eat flex space (was shoving the hero left) */
+.isDrink .card {
+  position: absolute;
+  width: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.isProfile .card {
+  position: relative;
+  width: min(480px, 100%);
+  max-width: 480px;
+  height: auto;
+  padding: 40px 52px;
+  margin-left: clamp(2rem, 5vw, 5rem);
+  opacity: 0; /* GSAP reveals */
+  visibility: hidden;
+  pointer-events: auto;
+}
+
+.eyebrowRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 34px;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.eyebrowRight {
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.title {
+  font-family: var(--font-card);
+  font-weight: 900;
+  font-size: clamp(2.75rem, 4.5vw, 3.625rem);
+  letter-spacing: -0.01em;
+  line-height: 0.92;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0 0 18px;
+}
+
+.titleCompact {
+  font-size: clamp(2.15rem, 3.2vw, 2.75rem);
+}
+
+.titleTight {
+  font-size: clamp(1.7rem, 2.5vw, 2.25rem);
+}
+
+.titleRule {
+  width: 64px;
+  height: 3px;
+  background: var(--ink);
+  margin-bottom: 30px;
+}
+
+.specs {
+  margin-bottom: 30px;
+}
+
+.specRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 20px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.specRow:first-child {
+  border-top: 1px solid var(--line);
+}
+
+.specLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.specValue {
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--ink);
+  text-align: right;
+}
+
+.notesValue {
+  font-style: italic;
+  font-family: var(--font-card-serif);
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.notesCompact {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.award {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--seal);
+}
+
+.award::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--seal);
+  flex-shrink: 0;
+}
+
+.story {
+  margin-top: 4px;
+}
+
+.storyLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 14px;
+}
+
+.storyBody {
+  font-family: var(--font-card-serif);
+  font-size: 16.5px;
+  font-weight: 400;
+  line-height: 1.62;
+  color: var(--ink);
+  margin: 0;
+}
+
+.footerRow {
+  margin-top: 36px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* Profile layout: drink + card as one serving */
+.isProfile {
+  justify-content: flex-start;
+  padding-left: clamp(1.25rem, 3vw, 2.5rem);
+  gap: clamp(1.75rem, 4.5vw, 4rem);
+}
+
+/* Wide heroes: center the pair so the bigger laptop does not shove the card */
+.isProfile:has(.drinkWide) {
+  justify-content: center;
+  padding-left: 0;
+}
+
+@media (max-width: 899px) {
+  .serving {
+    flex-direction: column;
+    gap: 1.25rem;
+    height: auto;
+  }
+
+  .isDrink .drinkBlock {
+    height: auto;
+    width: 100%;
+  }
+
+  .isDrink .drink {
+    width: 100%;
+    max-height: none;
+  }
+
+  .isDrink .drinkWide {
+    width: 100%;
+  }
+
+  .isDrink .drinkBlock:has(.drinkWide) {
+    justify-content: center;
+    padding-bottom: 0;
+    gap: 1.25rem;
+    overflow: hidden;
+  }
+
+  .isDrink .cue {
+    position: static;
+  }
+
+  .isProfile .drinkBlock {
+    width: min(100%, 520px);
+    min-width: 0;
+  }
+
+  .isProfile .drinkBlock:has(.drinkWide) {
+    width: min(100%, 720px);
+    min-width: 0;
+  }
+
+  .card,
+  .isProfile .card {
+    width: min(480px, 100%);
+    padding: 32px 28px;
+    margin-left: 0;
+  }
+
+  .title {
+    font-size: 44px;
+  }
+
+  .isProfile {
+    justify-content: center;
+    padding-left: 0;
+  }
+}

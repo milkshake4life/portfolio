@@ -5,7 +5,7 @@ import Image from "next/image";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ABOUT_BIO, ABOUT_PORTRAIT, SOCIAL_LINKS } from "@/lib/about";
-import { EASE, DUR } from "@/lib/motion";
+import { EASE } from "@/lib/motion";
 import styles from "./AboutContent.module.css";
 
 gsap.registerPlugin(useGSAP);

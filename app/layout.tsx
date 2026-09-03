@@ -16,7 +16,7 @@ const inter = Inter({
 // Apothecary-label monospace — used only for the lightbox journal entry.
 const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["500"],
   display: "swap",
   variable: "--font-mono-label",
 });
@@ -32,7 +32,7 @@ const archivo = Archivo({
 // Editorial body on the drink profile card.
 const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400"],
   style: ["normal", "italic"],
   display: "swap",
   variable: "--font-source-serif",

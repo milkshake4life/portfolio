@@ -24,22 +24,11 @@ Open [http://localhost:3000](http://localhost:3000).
 | --- | --- |
 | `app/styles/tokens.css` | The entire design system: grayscale ramp, type scale, spacing, easings. Change values here to retheme the whole site. |
 | `lib/motion.ts` | Shared GSAP easings/durations — keep all animation pulling from these. |
-| `lib/projects.ts` | Case-study data. Swap placeholder entries for real projects. |
-| `lib/drinks.ts` | "The Menu" data. Swap placeholder entries for real drink photos + notes. |
+| `lib/projects.ts` | Works menu + case-study data. |
+| `lib/drinks.ts` | Gallery / "The Menu" drink data. |
+| `lib/about.ts` | About bio, portrait path, and social links. |
 | `components/` | Preloader, Nav, SmoothScroll, PageTransition, page sections. |
-| `public/images/` | Placeholder imagery. Replace files in place, keeping the same paths. |
-
-## Swapping in real content
-
-1. Drop photos into `public/images/...` using the paths referenced in `lib/projects.ts` and `lib/drinks.ts` (or update those paths).
-2. Edit the copy in `lib/projects.ts`, `lib/drinks.ts`, and `components/about/AboutContent.tsx`.
-3. Add your resume at `public/resume.pdf`.
-
-To regenerate the gray placeholder images at any time:
-
-```bash
-node scripts/generate-placeholders.mjs
-```
+| `public/images/` | Photography referenced by the data files above. |
 
 ## Conventions
 

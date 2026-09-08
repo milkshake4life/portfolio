@@ -41,8 +41,8 @@ function hideProfileCard(card: HTMLElement, desktop: boolean) {
 }
 
 /**
- * Cafe menu docked left; right pane holds the drink.
- * Click the drink → menu yields, phone FLIPs, profile card arrives.
+ * Cafe menu docked left; right pane holds the drink preview.
+ * Click a menu row → menu yields, phone FLIPs, profile card arrives.
  */
 export default function WorksMenu() {
   const scope = useRef<HTMLElement>(null);
@@ -55,6 +55,7 @@ export default function WorksMenu() {
   const hoverClearTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cachedProject = useRef<ReturnType<typeof getProject>>(undefined);
   const profileTl = useRef<gsap.core.Timeline | null>(null);
+  const openingRef = useRef(false);
 
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
   const [pinnedSlug, setPinnedSlug] = useState<string | null>(null);
@@ -110,124 +111,156 @@ export default function WorksMenu() {
     }, HOVER_CLEAR_MS);
   }, [clearHoverTimer, profileOpen]);
 
-  const pinProject = useCallback(
+  const openProfile = useCallback(
     (slug: string) => {
-      if (profileOpen) return;
-      setPinnedSlug((current) => (current === slug ? null : slug));
-      setHoveredSlug(null);
-      setProfileOpen(false);
+      if (profileOpen || openingRef.current) return;
+
+      openingRef.current = true;
+      clearHoverTimer();
+
+      flushSync(() => {
+        setHoveredSlug(null);
+        setPinnedSlug(slug);
+      });
+
+      const reduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+      const desktop = window.matchMedia("(min-width: 900px)").matches;
+
+      const startSequence = () => {
+        const placeholder = placeholderRef.current;
+        const cardSlot = cardSlotRef.current;
+        const menu = menuRef.current;
+        const split = splitRef.current;
+        const detail = detailRef.current;
+
+        gsap.killTweensOf(
+          [placeholder, cardSlot, menu, split, detail].filter(Boolean)
+        );
+        if (placeholder) gsap.set(placeholder, { autoAlpha: 0 });
+        if (cardSlot) {
+          gsap.set(cardSlot, { autoAlpha: 1, y: 0, visibility: "visible" });
+        }
+        if (menu && split) {
+          gsap.set([menu, split], { autoAlpha: 1, x: 0, y: 0 });
+        }
+
+        const { cue, card, back } = getServingParts();
+        profileTl.current?.kill();
+
+        if (reduced) {
+          flushSync(() => setProfileOpen(true));
+          if (menu && split) {
+            gsap.set([menu, split], { autoAlpha: 0, pointerEvents: "none" });
+          }
+          if (cue) gsap.set(cue, { autoAlpha: 0 });
+          if (card) gsap.set(card, { autoAlpha: 1, x: 0, y: 0, visibility: "visible" });
+          if (back) gsap.set(back, { autoAlpha: 1, x: 0 });
+          openingRef.current = false;
+          return;
+        }
+
+        if (card) gsap.set(card, { autoAlpha: 0, visibility: "hidden" });
+        if (back) gsap.set(back, { autoAlpha: 0, x: -12 });
+
+        const tl = gsap.timeline({
+          defaults: { overwrite: "auto" },
+          onComplete: () => {
+            openingRef.current = false;
+          },
+        });
+        profileTl.current = tl;
+
+        if (menu && split) {
+          tl.to([menu, split], {
+            x: desktop ? PROFILE_SEQUENCE.menuExit.x : 0,
+            y: desktop ? 0 : -22,
+            autoAlpha: 0,
+            duration: PROFILE_SEQUENCE.menuExit.duration,
+            ease: PROFILE_SEQUENCE.menuExit.ease,
+            stagger: 0.04,
+            pointerEvents: "none",
+          });
+        }
+
+        if (cue) {
+          tl.to(
+            cue,
+            { autoAlpha: 0, y: 10, duration: 0.34, ease: "power2.in" },
+            "<0.14"
+          );
+        }
+
+        tl.to({}, { duration: PROFILE_SEQUENCE.beat });
+
+        tl.call(() => {
+          const { drink: drinkEl } = getServingParts();
+          let flipState: Flip.FlipState | null = null;
+          if (drinkEl) {
+            clearDrinkHoverScale(drinkEl);
+            try {
+              flipState = Flip.getState(drinkEl);
+            } catch {
+              flipState = null;
+            }
+          }
+
+          flushSync(() => setProfileOpen(true));
+
+          const { drink: drinkAfter, card: cardEl, back: backEl } =
+            getServingParts();
+
+          clearDrinkHoverScale(drinkAfter);
+          if (cardEl) hideProfileCard(cardEl, desktop);
+          if (backEl) gsap.set(backEl, { autoAlpha: 0, x: -12 });
+
+          if (flipState && drinkAfter) {
+            tl.add(
+              Flip.from(flipState, {
+                duration: PROFILE_SEQUENCE.phoneFlip.duration,
+                ease: PROFILE_SEQUENCE.phoneFlip.ease,
+                absolute: true,
+                scale: true,
+                fade: false,
+              })
+            );
+          }
+
+          tl.to({}, { duration: PROFILE_SEQUENCE.beatBeforeCard });
+
+          if (cardEl) {
+            tl.to(cardEl, {
+              autoAlpha: 1,
+              x: 0,
+              y: 0,
+              duration: PROFILE_SEQUENCE.cardEnter.duration,
+              ease: PROFILE_SEQUENCE.cardEnter.ease,
+            });
+          }
+
+          if (backEl) {
+            tl.to(
+              backEl,
+              {
+                autoAlpha: 1,
+                x: 0,
+                duration: PROFILE_SEQUENCE.backEnter.duration,
+                ease: EASE.out,
+              },
+              "-=0.2"
+            );
+          }
+        });
+      };
+
+      requestAnimationFrame(() => requestAnimationFrame(startSequence));
     },
-    [profileOpen]
+    [clearHoverTimer, getServingParts, profileOpen]
   );
 
-  const openProfile = useCallback(() => {
-    if (!displaySlug) return;
-    clearHoverTimer();
-    setPinnedSlug(displaySlug);
-    setHoveredSlug(null);
-
-    const reduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    const desktop = window.matchMedia("(min-width: 900px)").matches;
-    const { menu, split, cue, card, back } = getServingParts();
-
-    profileTl.current?.kill();
-
-    if (!menu || !split || !card) return;
-
-    if (reduced) {
-      flushSync(() => setProfileOpen(true));
-      gsap.set([menu, split], { autoAlpha: 0, pointerEvents: "none" });
-      if (cue) gsap.set(cue, { autoAlpha: 0 });
-      gsap.set(card, { autoAlpha: 1, x: 0, y: 0, visibility: "visible" });
-      if (back) gsap.set(back, { autoAlpha: 1, x: 0 });
-      return;
-    }
-
-    // Keep profile layout hidden until the menu has cleared
-    gsap.set(card, { autoAlpha: 0, visibility: "hidden" });
-    if (back) gsap.set(back, { autoAlpha: 0, x: -12 });
-
-    const tl = gsap.timeline({ defaults: { overwrite: "auto" } });
-    profileTl.current = tl;
-
-    // 1 — Menu sheet slides off left
-    tl.to([menu, split], {
-      x: desktop ? PROFILE_SEQUENCE.menuExit.x : 0,
-      y: desktop ? 0 : -22,
-      autoAlpha: 0,
-      duration: PROFILE_SEQUENCE.menuExit.duration,
-      ease: PROFILE_SEQUENCE.menuExit.ease,
-      stagger: 0.04,
-      pointerEvents: "none",
-    });
-
-    if (cue) {
-      tl.to(
-        cue,
-        { autoAlpha: 0, y: 10, duration: 0.34, ease: "power2.in" },
-        "<0.14"
-      );
-    }
-
-    tl.to({}, { duration: PROFILE_SEQUENCE.beat });
-
-    // 2 — Phone glides into its profile seat, then 3 — card arrives from the right
-    tl.call(() => {
-      const { drink: drinkEl } = getServingParts();
-      if (!drinkEl) return;
-
-      clearDrinkHoverScale(drinkEl);
-      const flipState = Flip.getState(drinkEl);
-
-      flushSync(() => setProfileOpen(true));
-
-      const { drink: drinkAfter, card: cardEl, back: backEl } =
-        getServingParts();
-
-      clearDrinkHoverScale(drinkAfter);
-      if (cardEl) hideProfileCard(cardEl, desktop);
-      if (backEl) gsap.set(backEl, { autoAlpha: 0, x: -12 });
-
-      tl.add(
-        Flip.from(flipState, {
-          duration: PROFILE_SEQUENCE.phoneFlip.duration,
-          ease: PROFILE_SEQUENCE.phoneFlip.ease,
-          absolute: true,
-          scale: true,
-          fade: false,
-        })
-      );
-
-      tl.to({}, { duration: PROFILE_SEQUENCE.beatBeforeCard });
-
-      if (cardEl) {
-        tl.to(cardEl, {
-          autoAlpha: 1,
-          x: 0,
-          y: 0,
-          duration: PROFILE_SEQUENCE.cardEnter.duration,
-          ease: PROFILE_SEQUENCE.cardEnter.ease,
-        });
-      }
-
-      if (backEl) {
-        tl.to(
-          backEl,
-          {
-            autoAlpha: 1,
-            x: 0,
-            duration: PROFILE_SEQUENCE.backEnter.duration,
-            ease: EASE.out,
-          },
-          "-=0.2"
-        );
-      }
-    });
-  }, [clearHoverTimer, displaySlug, getServingParts]);
-
   const backToMenu = useCallback(() => {
+    openingRef.current = true;
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
@@ -238,6 +271,7 @@ export default function WorksMenu() {
     profileTl.current?.kill();
 
     if (reduced || !drink) {
+      openingRef.current = false;
       setProfileOpen(false);
       return;
     }
@@ -281,6 +315,7 @@ export default function WorksMenu() {
       const { drink: drinkEl } = getServingParts();
       if (!drinkEl) {
         cleanupClose();
+        openingRef.current = false;
         return;
       }
 
@@ -347,7 +382,10 @@ export default function WorksMenu() {
         );
       }
 
-      rest.eventCallback("onComplete", cleanupClose);
+      rest.eventCallback("onComplete", () => {
+        cleanupClose();
+        openingRef.current = false;
+      });
       profileTl.current = rest;
     }, phoneAt);
   }, [getServingParts]);
@@ -403,7 +441,7 @@ export default function WorksMenu() {
         }
       );
     },
-    { scope }
+    { scope, dependencies: [] }
   );
 
   // Swap placeholder ↔ drink serving
@@ -467,7 +505,7 @@ export default function WorksMenu() {
   // Soft refresh when the visible project changes (drink mode only)
   useGSAP(
     () => {
-      if (profileOpen) return;
+      if (profileOpen || openingRef.current) return;
       const inner = cardSlotRef.current?.querySelector("[data-serving]");
       if (!inner || !displaySlug) return;
 
@@ -544,7 +582,7 @@ export default function WorksMenu() {
                           onMouseLeave={endPreview}
                           onFocus={() => previewProject(project.slug)}
                           onBlur={endPreview}
-                          onClick={() => pinProject(project.slug)}
+                          onClick={() => openProfile(project.slug)}
                           aria-pressed={pinned}
                           disabled={profileOpen}
                         >
@@ -599,7 +637,6 @@ export default function WorksMenu() {
                   <ProjectProfileCard
                     project={cardProject}
                     mode={profileOpen ? "profile" : "drink"}
-                    onOpenProfile={openProfile}
                   />
                 </div>
               ) : null}

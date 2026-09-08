@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { WELCOME } from "@/lib/motion";
@@ -8,11 +8,8 @@ import styles from "./Preloader.module.css";
 
 gsap.registerPlugin(useGSAP);
 
-const SESSION_KEY = "preloader-seen";
-
 const LINES = [
   "Ethan G.R. Lee",
-  "Welcome",
   "I love Design, Coffee & Tea",
   "Explore my passions through this website",
 ] as const;
@@ -22,26 +19,42 @@ function prefersReducedMotion() {
 }
 
 /**
- * Apple-style welcome sequence — soft centered phrases that
- * appear and dissolve, once per session, then reveal the site.
+ * Apple-style welcome sequence — three soft centered phrases
+ * on each full page load. Click or Escape skips.
  */
 export default function Preloader() {
   const rootRef = useRef<HTMLDivElement>(null);
+  const hintRef = useRef<HTMLParagraphElement>(null);
+  const timelineRef = useRef<gsap.core.Timeline | null>(null);
+  const finishingRef = useRef(false);
   const [hidden, setHidden] = useState(false);
+
+  const finish = useCallback(() => {
+    if (finishingRef.current) return;
+    finishingRef.current = true;
+    document.body.style.overflow = "";
+    setHidden(true);
+  }, []);
+
+  const skip = useCallback(() => {
+    if (finishingRef.current) return;
+    timelineRef.current?.kill();
+    const root = rootRef.current;
+    if (!root) {
+      finish();
+      return;
+    }
+    gsap.to(root, {
+      opacity: 0,
+      duration: 0.28,
+      ease: "power2.out",
+      overwrite: true,
+      onComplete: finish,
+    });
+  }, [finish]);
 
   useGSAP(
     () => {
-      const finish = () => {
-        sessionStorage.setItem(SESSION_KEY, "1");
-        document.body.style.overflow = "";
-        setHidden(true);
-      };
-
-      if (sessionStorage.getItem(SESSION_KEY)) {
-        setHidden(true);
-        return;
-      }
-
       if (prefersReducedMotion()) {
         finish();
         return;
@@ -50,24 +63,39 @@ export default function Preloader() {
       document.body.style.overflow = "hidden";
 
       const lines = gsap.utils.toArray<HTMLElement>("[data-welcome-line]");
+      const hint = hintRef.current;
       const tl = gsap.timeline({ onComplete: finish });
+      timelineRef.current = tl;
 
       gsap.set(lines, {
         opacity: 0,
         scale: 0.985,
         filter: "blur(10px)",
       });
+      if (hint) gsap.set(hint, { opacity: 0 });
+
+      if (hint) {
+        tl.to(
+          hint,
+          { opacity: 1, duration: WELCOME.fadeIn, ease: WELCOME.ease },
+          0.2
+        );
+      }
 
       lines.forEach((line, i) => {
         const isLast = i === lines.length - 1;
 
-        tl.to(line, {
-          opacity: 1,
-          scale: 1,
-          filter: "blur(0px)",
-          duration: WELCOME.fadeIn,
-          ease: WELCOME.ease,
-        })
+        tl.to(
+          line,
+          {
+            opacity: 1,
+            scale: 1,
+            filter: "blur(0px)",
+            duration: WELCOME.fadeIn,
+            ease: WELCOME.ease,
+          },
+          i === 0 ? 0 : ">"
+        )
           .to(line, {
             opacity: 0,
             scale: 1.01,
@@ -85,8 +113,22 @@ export default function Preloader() {
         ease: WELCOME.ease,
       });
     },
-    { scope: rootRef }
+    { scope: rootRef, dependencies: [finish] }
   );
+
+  useEffect(() => {
+    if (hidden) return;
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        skip();
+      }
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [hidden, skip]);
 
   if (hidden) return null;
 
@@ -94,8 +136,10 @@ export default function Preloader() {
     <div
       ref={rootRef}
       className={styles.preloader}
-      role="presentation"
-      aria-hidden="true"
+      role="dialog"
+      aria-label="Introduction"
+      aria-modal="true"
+      onClick={skip}
     >
       <div className={styles.stage}>
         {LINES.map((text, i) => (
@@ -108,6 +152,9 @@ export default function Preloader() {
           </p>
         ))}
       </div>
+      <p ref={hintRef} className={styles.skipHint}>
+        Click to skip
+      </p>
     </div>
   );
 }

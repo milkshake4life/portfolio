@@ -6,6 +6,7 @@
   display: grid;
   place-items: center;
   padding: var(--gutter);
+  cursor: pointer;
 }
 
 .stage {
@@ -37,4 +38,18 @@
   white-space: nowrap;
   font-size: clamp(0.95rem, 3.15vw, 2.75rem);
   text-wrap: nowrap;
+}
+
+.skipHint {
+  position: absolute;
+  bottom: var(--bottom-meta);
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-faint);
+  pointer-events: none;
+  user-select: none;
 }

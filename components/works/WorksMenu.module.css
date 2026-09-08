@@ -294,6 +294,11 @@
   justify-content: center;
 }
 
+.isOpen .cardSlot,
+.isProfile .cardSlot {
+  visibility: visible;
+}
+
 .cardSlot > [data-card-inner] {
   width: 100%;
   height: 100%;

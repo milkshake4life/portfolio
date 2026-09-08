@@ -52,10 +52,9 @@
 .drink {
   position: relative;
   overflow: visible;
-  cursor: zoom-in;
   background: transparent;
   padding: 0;
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 .isDrink .drink {
@@ -63,7 +62,7 @@
   position: relative;
   width: min(
     calc(70cqw * var(--drink-scale)),
-    calc((100cqh - 3.25rem) * var(--drink-w) / var(--drink-h) * var(--drink-scale)),
+    calc(100cqh * var(--drink-w) / var(--drink-h) * var(--drink-scale)),
     calc(520px * var(--drink-scale))
   );
   max-width: 100%;
@@ -74,7 +73,7 @@
 .isDrink .drinkWide {
   width: min(
     110cqw,
-    calc((100cqh - 3.25rem) * var(--drink-w) / var(--drink-h))
+    calc(100cqh * var(--drink-w) / var(--drink-h))
   );
   max-width: none;
 }
@@ -88,30 +87,6 @@
   object-position: center;
   background: transparent;
   image-rendering: auto;
-}
-
-.isDrink .drink:hover .drinkImg {
-  transform: scale(1.015);
-  transition: transform var(--dur-base) var(--ease-out-expo);
-}
-
-.isDrink .cue {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 1.5rem;
-  flex-shrink: 0;
-  transition:
-    color var(--dur-fast) ease,
-    text-shadow var(--dur-fast) ease;
-}
-
-/* Glow only when the phone itself is hovered — not the empty pane */
-.isDrink .drink:hover ~ .cue {
-  color: var(--text);
-  text-shadow:
-    0 0 10px rgba(239, 239, 239, 0.45),
-    0 0 22px rgba(239, 239, 239, 0.2);
 }
 
 .isProfile .drinkBlock {
@@ -138,29 +113,6 @@
   max-width: none;
   max-height: none;
   aspect-ratio: var(--drink-w) / var(--drink-h);
-  cursor: default;
-}
-
-.isProfile .cue {
-  /* Out of flow so the hero centers on the card, same as phones */
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.cue {
-  margin: 0;
-  flex-shrink: 0;
-  font-size: var(--text-micro);
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  color: var(--text-faint);
-  text-align: center;
-  pointer-events: none;
-  user-select: none;
 }
 
 /* ---- Case study card — sized to match the menu sheet (480 / 40×52) ---- */
@@ -390,10 +342,6 @@
     padding-bottom: 0;
     gap: 1.25rem;
     overflow: hidden;
-  }
-
-  .isDrink .cue {
-    position: static;
   }
 
   .isProfile .drinkBlock {

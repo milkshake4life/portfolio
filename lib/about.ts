@@ -1,5 +1,5 @@
 export const ABOUT_BIO =
-  "Ethan G.R. Lee is a product designer crafting quiet, considered digital experiences. He specializes in systems thinking & interaction design. Outside of building satisfying products, he hopes to one day open a cafe. The Menu serves as a journal of personal creations and recipes, alongside recently explored cafes.";
+  "Ethan G.R. Lee is a product designer crafting quiet, considered digital experiences. He specializes in systems thinking & interaction design. Outside of building satisfying products, he hopes to one day open a cafe. The journal section is a collection of personal creations and recipes, alongside recently explored cafes.";
 
 export const SOCIAL_LINKS = [
   { label: "Email", href: "mailto:egl54@cornell.edu" },

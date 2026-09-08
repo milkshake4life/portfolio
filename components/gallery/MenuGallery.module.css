@@ -8,6 +8,13 @@
   overflow: hidden;
   display: flex;
   align-items: center;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.viewport[data-dragging="true"] {
+  cursor: grabbing;
+  user-select: none;
 }
 
 .track {
@@ -30,7 +37,16 @@
 
 .openBtn {
   display: block;
+  cursor: grab;
+}
+
+.openBtn:hover {
   cursor: zoom-in;
+}
+
+.viewport[data-dragging="true"] .openBtn,
+.viewport[data-dragging="true"] .openBtn:hover {
+  cursor: grabbing;
 }
 
 .media {
@@ -55,6 +71,10 @@
 
 .openBtn:hover .media img {
   transform: scale(calc(var(--card-zoom, 1) * 1.03));
+}
+
+.viewport[data-dragging="true"] .openBtn:hover .media img {
+  transform: scale(var(--card-zoom, 1));
 }
 
 .caption {

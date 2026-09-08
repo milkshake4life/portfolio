@@ -33,7 +33,7 @@ export const SLIDE = {
   ease: "power2.inOut",
 } as const;
 
-/** Route changes (Menu ↔ Gallery ↔ About) — quick cover, smooth reveal */
+/** Route changes (Menu ↔ About ↔ Journal) — quick cover, smooth reveal */
 export const NAV = {
   coverDuration: 0.22,
   revealDuration: 0.4,
@@ -57,14 +57,14 @@ export const JOURNAL = {
 } as const;
 
 /**
- * Apple-style welcome preloader — soft dissolve in/out of centered phrases.
- * Deliberate and unhurried; total sequence ~12–14s before the site reveals.
+ * Apple-style welcome preloader — three phrases, then the site.
+ * Kept short so the product is reachable in a few seconds.
  */
 export const WELCOME = {
-  fadeIn: 1.15,
-  hold: 1.55,
-  fadeOut: 0.95,
-  gap: 0.35,
-  exit: 0.9,
+  fadeIn: 0.68,
+  hold: 0.82,
+  fadeOut: 0.55,
+  gap: 0.16,
+  exit: 0.5,
   ease: "power2.inOut",
 } as const;

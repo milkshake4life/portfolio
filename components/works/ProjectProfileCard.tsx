@@ -9,17 +9,15 @@ type Mode = "drink" | "profile";
 
 /**
  * Cafe serving in two beats:
- * 1. drink — hero photo + cue to open the tasting card
+ * 1. drink — hero photo previewed from the menu
  * 2. profile — drink slides aside; paper card accompanies
  */
 export default function ProjectProfileCard({
   project,
   mode,
-  onOpenProfile,
 }: {
   project: Project;
   mode: Mode;
-  onOpenProfile: () => void;
 }) {
   const { number, eyebrow, collection } = getCardMeta(project);
   const story = project.story ?? project.summary;
@@ -51,18 +49,10 @@ export default function ProjectProfileCard({
       }
     >
       <div className={styles.drinkBlock} data-drink-block>
-        <button
-          type="button"
+        <div
           className={`${styles.drink} ${isWide ? styles.drinkWide : ""}`}
           data-drink
           {...(isWide ? { "data-drink-wide": true } : {})}
-          onClick={onOpenProfile}
-          aria-label={
-            isProfile
-              ? `${project.title} drink`
-              : `${project.title} — check profile card`
-          }
-          disabled={isProfile}
         >
           <Image
             src={project.cover}
@@ -73,11 +63,7 @@ export default function ProjectProfileCard({
             unoptimized={project.cover.endsWith(".png")}
             className={styles.drinkImg}
           />
-        </button>
-
-        <p className={styles.cue} data-cue aria-hidden={isProfile}>
-          Check Profile Card
-        </p>
+        </div>
       </div>
 
       <article

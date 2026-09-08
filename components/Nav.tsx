@@ -6,13 +6,17 @@ import styles from "./Nav.module.css";
 
 const LINKS = [
   { href: "/", label: "Menu", wordmark: "The Menu" },
-  { href: "/gallery", label: "Gallery", wordmark: "Gallery" },
   { href: "/about", label: "About", wordmark: "About" },
+  { href: "/gallery", label: "Journal", wordmark: "Journal" },
 ] as const;
 
 function getSection(pathname: string) {
-  if (pathname.startsWith("/gallery")) return LINKS[1];
-  if (pathname.startsWith("/about")) return LINKS[2];
+  if (pathname.startsWith("/about")) {
+    return LINKS.find((link) => link.href === "/about") ?? LINKS[0];
+  }
+  if (pathname.startsWith("/gallery")) {
+    return LINKS.find((link) => link.href === "/gallery") ?? LINKS[0];
+  }
   return LINKS[0];
 }
 

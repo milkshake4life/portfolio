@@ -557,15 +557,18 @@ export default function WorksMenu() {
           </div>
 
           <div className={styles.sections}>
-            {SECTIONS.map(({ id, label, projects: items }) => (
+            {SECTIONS.map(({ id, label, note, projects: items }) => (
               <section
                 key={id}
                 className={styles.section}
                 aria-labelledby={`section-${id}`}
               >
-                <h2 id={`section-${id}`} className={styles.sectionTitle}>
-                  {label}
-                </h2>
+                <div className={styles.sectionHeading}>
+                  <h2 id={`section-${id}`} className={styles.sectionTitle}>
+                    {label}
+                  </h2>
+                  <p className={styles.sectionNote}>{note}</p>
+                </div>
                 <ul className={styles.list}>
                   {items.map((project) => {
                     const active = displaySlug === project.slug;
@@ -622,7 +625,7 @@ export default function WorksMenu() {
             className={styles.placeholder}
             aria-hidden={isShowing}
           >
-            Explore our drinks
+            Hover an item for the full pour
           </p>
 
           <div className={styles.cardFrame}>

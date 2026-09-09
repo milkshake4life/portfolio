@@ -40,7 +40,7 @@ export type Project = {
   cardTitleCompact?: boolean;
   /**
    * Card series. Eyebrow and footer collection are derived from this.
-   * Footer index is menu order (01–08, top to bottom).
+   * Footer index is project order (01–n, top to bottom).
    */
   cardKind?: CardKind;
   /** Smaller notes so a long tasting line stays on one row */
@@ -65,12 +65,15 @@ const CARD_KIND_COPY: Record<
   leadership: { eyebrow: "Leadership", collection: "Leadership" },
 };
 
-/** Menu section order + labels — matches the Figma sheet */
-export const MENU_CATEGORIES: { id: ProjectCategory; label: string }[] = [
-  { id: "seasonal", label: "Seasonal" },
-  { id: "specialty", label: "Specialty" },
-  { id: "single-origin", label: "Single Origin" },
-  { id: "sides", label: "Sides" },
+/** Menu section order + labels. Sides stays in the data, off this sheet. */
+export const MENU_CATEGORIES: {
+  id: ProjectCategory;
+  label: string;
+  note: string;
+}[] = [
+  { id: "seasonal", label: "Seasonal", note: "Currently building" },
+  { id: "specialty", label: "Specialty", note: "Team projects" },
+  { id: "single-origin", label: "Single Origin", note: "Solo projects" },
 ];
 
 /**
@@ -80,7 +83,7 @@ export const MENU_CATEGORIES: { id: ProjectCategory; label: string }[] = [
 export const projects: Project[] = [
   {
     slug: "unbounded-build4good",
-    title: "Unbounded + Build4Good",
+    title: "Unbounded",
     cardTitle: "Unbounded",
     cardTitleCompact: true,
     dateRange: "5.26 - Curr.",
@@ -278,9 +281,10 @@ export function getNextProject(slug: string) {
 
 /** Menu sections in Figma order, each with its projects. */
 export function projectsByCategory() {
-  return MENU_CATEGORIES.map(({ id, label }) => ({
+  return MENU_CATEGORIES.map(({ id, label, note }) => ({
     id,
     label,
+    note,
     projects: projects.filter((p) => p.category === id),
   })).filter((section) => section.projects.length > 0);
 }

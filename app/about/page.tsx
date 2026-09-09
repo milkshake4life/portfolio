@@ -4,7 +4,7 @@ import AboutContent from "@/components/about/AboutContent";
 export const metadata: Metadata = {
   title: "About — Ethan G.R. Lee",
   description:
-    "Product designer crafting quiet, considered digital experiences.",
+    "Product designer crafting quiet, considered digital experiences. Teaching, community, and a cafe still in the works.",
 };
 
 export default function AboutPage() {

@@ -1,15 +1,58 @@
 .about {
+  padding: 0;
+}
+
+.kicker {
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.85rem;
+}
+
+.bio,
+.roleBody,
+.cafe,
+.facts li,
+.contactLine {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.58;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.panel {
+  box-sizing: border-box;
+  height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
   padding:
-    calc(var(--nav-height) + clamp(1.5rem, 4vh, 2.5rem))
+    calc(var(--nav-height) + clamp(1.25rem, 3vh, 2rem))
     var(--gutter)
-    calc(var(--bottom-meta) + clamp(2rem, 5vh, 3rem));
+    calc(var(--bottom-meta) + clamp(1.5rem, 4vh, 2.5rem));
 }
 
-.layout {
+.panelInner {
+  width: min(100%, 68rem);
+}
+
+.panelHead {
+  margin-bottom: clamp(1.5rem, 4vh, 2.5rem);
+}
+
+.sectionTitle {
+  font-size: clamp(1.35rem, 2.6vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--text);
+}
+
+/* ---- 1. Intro ---- */
+.introLayout {
   --portrait-size: 20rem;
 
   display: grid;
@@ -19,42 +62,18 @@
   width: min(100%, calc(22.5rem + 4rem + var(--portrait-size)));
 }
 
-.aboutItem {
+.introItem {
   opacity: 0;
 }
 
-.content {
+.introCopy {
   display: flex;
   flex-direction: column;
-  height: var(--portrait-size);
-  gap: clamp(1.5rem, 3vh, 2rem);
+  min-height: var(--portrait-size);
 }
 
-.bio {
-  font-size: 0.9375rem;
-  font-weight: 400;
-  line-height: 1.58;
-  letter-spacing: -0.01em;
-  color: var(--text);
-}
-
-.links {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-top: auto;
-}
-
-.link {
-  font-size: 0.9375rem;
-  font-weight: 400;
-  line-height: 1.5;
-  color: var(--text-muted);
-  transition: color var(--dur-fast) var(--ease-out-expo);
-}
-
-.link:hover {
-  color: var(--text-muted);
+.introCopy .bio + .bio {
+  margin-top: 1rem;
 }
 
 .portrait {
@@ -69,13 +88,137 @@
   object-position: center;
 }
 
-@media (max-width: 900px) {
+/* ---- 2–3. Side work panels ---- */
+.role {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(1.75rem, 4vw, 3.5rem);
+  align-items: center;
+}
+
+.panel:nth-of-type(3) .role {
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+}
+
+.panel:nth-of-type(3) .roleMedia {
+  order: 2;
+}
+
+.roleMedia {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: var(--surface);
+}
+
+.roleImage {
+  object-fit: contain;
+  padding: 1.25rem;
+}
+
+.roleMeta {
+  font-size: var(--text-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.65rem;
+}
+
+.roleTitle {
+  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.85rem;
+}
+
+.roleBody {
+  color: var(--text-muted);
+}
+
+/* ---- 4. Passions ---- */
+.passions {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: start;
+}
+
+.cafe {
+  color: var(--text-muted);
+  max-width: 36rem;
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  padding-top: 0.15rem;
+}
+
+.facts li {
+  color: var(--text-muted);
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--line);
+}
+
+.facts li:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+/* ---- 5. Contact ---- */
+.contactInner {
+  max-width: 36rem;
+  width: 100%;
+}
+
+.contactLine {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 2rem;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.link {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-muted);
+  transition: color var(--dur-fast) var(--ease-out-expo);
+}
+
+.link:hover {
+  color: var(--text);
+}
+
+@media (max-width: 899px) {
   .about {
-    align-items: flex-start;
+    padding-bottom: calc(var(--bottom-meta) + clamp(3rem, 8vh, 5rem));
+  }
+
+  .panel {
+    height: auto;
+    min-height: auto;
+    display: block;
+    padding:
+      clamp(3rem, 8vh, 5rem)
+      var(--gutter)
+      0;
+  }
+
+  .panel:first-child {
+    min-height: 100svh;
     padding-top: calc(var(--nav-height) + clamp(2rem, 6vh, 3rem));
   }
 
-  .layout {
+  .introLayout {
     --portrait-size: min(20rem, 100%);
 
     grid-template-columns: 1fr;
@@ -83,13 +226,26 @@
     max-width: 22.5rem;
   }
 
-  .content {
-    height: auto;
+  .introCopy {
+    min-height: 0;
+  }
+
+  .role,
+  .panel:nth-of-type(3) .role {
+    grid-template-columns: 1fr;
+  }
+
+  .panel:nth-of-type(3) .roleMedia {
+    order: 0;
+  }
+
+  .passions {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .aboutItem {
+  .introItem {
     opacity: 1;
   }
 }

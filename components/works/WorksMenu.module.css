@@ -3,7 +3,8 @@
   --paper: #f5f0eb;
   --paper-ink: #111111;
   --paper-meta: #222222;
-  --paper-muted: #888888;
+  --paper-muted: #666666;
+  --paper-accent: #7a3224;
   --menu-width: min(480px, 100%);
   /* Serving fills the detail pane so the drink can center large */
   --card-width: 100%;
@@ -11,13 +12,15 @@
 
   position: relative;
   box-sizing: border-box;
-  min-height: 100svh;
+  height: 100svh;
+  max-height: 100svh;
   display: flex;
   align-items: center;
   background: var(--bg);
   color: var(--text);
   padding: calc(var(--nav-height) + var(--space-md)) var(--gutter)
     calc(var(--space-lg) + 1.5rem);
+  overscroll-behavior: none;
 }
 
 /* Back control — matches bottom wordmark; GSAP owns opacity */
@@ -105,7 +108,7 @@
   align-self: stretch;
   flex-shrink: 0;
   margin-right: var(--stage-gap);
-  background: var(--line);
+  background: rgba(239, 239, 239, 0.34);
   opacity: 0;
 }
 
@@ -113,7 +116,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 52px;
+  margin-bottom: 36px;
 }
 
 .headerMeta {
@@ -124,7 +127,7 @@
 }
 
 .titleBlock {
-  margin-bottom: 32px;
+  margin-bottom: 36px;
 }
 
 .title {
@@ -147,7 +150,6 @@
 .sections {
   display: flex;
   flex-direction: column;
-  margin-top: 36px;
 }
 
 .section {
@@ -158,13 +160,33 @@
   margin-bottom: 0;
 }
 
+.sectionHeading {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.45em 0.65em;
+  margin-bottom: 12px;
+}
+
 .sectionTitle {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 500;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--paper-ink);
-  margin-bottom: 14px;
+  text-transform: none;
+  color: var(--paper-accent);
+}
+
+.sectionNote {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--paper-muted);
+}
+
+.sectionNote::before {
+  content: "–";
+  margin-right: 0.55em;
+  color: var(--paper-muted);
 }
 
 .list {
@@ -179,9 +201,14 @@
   gap: 1.5rem;
   width: 100%;
   text-align: left;
-  margin-bottom: 6px;
+  padding: 16px 4px;
+  margin-bottom: 0;
   color: inherit;
-  transition: opacity var(--dur-fast) ease;
+  cursor: pointer;
+  transition:
+    padding-left 0.18s ease,
+    color 0.18s ease,
+    opacity var(--dur-fast) ease;
 }
 
 .item:last-child {
@@ -189,7 +216,7 @@
 }
 
 .itemHasNote {
-  margin-bottom: 10px;
+  padding-bottom: 18px;
 }
 
 .itemCopy {
@@ -199,12 +226,28 @@
 }
 
 .itemName {
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.05em;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--paper-ink);
   line-height: 1.25;
+  display: flex;
+  align-items: center;
+  transition: color 0.18s ease;
+}
+
+.itemName::after {
+  content: "→";
+  display: inline-block;
+  margin-left: 8px;
+  opacity: 0;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1;
+  transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
 .itemNote {
@@ -218,11 +261,34 @@
 
 .itemPrice {
   flex-shrink: 0;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 400;
-  color: var(--paper-ink);
+  color: var(--paper-muted);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+  transition: color 0.18s ease;
+}
+
+.item:hover:not(:disabled),
+.item:focus-visible:not(:disabled) {
+  padding-left: 14px;
+  color: var(--paper-accent);
+}
+
+.item:hover:not(:disabled) .itemName,
+.item:focus-visible:not(:disabled) .itemName {
+  color: var(--paper-accent);
+}
+
+.item:hover:not(:disabled) .itemName::after,
+.item:focus-visible:not(:disabled) .itemName::after {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+.item:hover:not(:disabled) .itemPrice,
+.item:focus-visible:not(:disabled) .itemPrice {
+  color: var(--paper-accent);
 }
 
 .item:disabled {
@@ -266,10 +332,10 @@
   z-index: 0;
   display: grid;
   place-items: center;
-  font-size: var(--text-small);
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  color: var(--text-faint);
+  font-size: 0.9375rem;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  color: rgba(239, 239, 239, 0.82);
   text-align: center;
   pointer-events: none;
   user-select: none;
@@ -339,6 +405,18 @@
     align-items: flex-start;
   }
 
+  /* Landing is just the sheet — no empty preview stack that forces a scroll */
+  .page:not(.isOpen):not(.isProfile) .split,
+  .page:not(.isOpen):not(.isProfile) .detailPane {
+    display: none;
+  }
+
+  .isOpen,
+  .isProfile {
+    height: auto;
+    max-height: none;
+  }
+
   .back {
     top: calc(var(--nav-height) + 0.15rem);
   }
@@ -389,5 +467,22 @@
   .split,
   .detailPane {
     opacity: 1;
+  }
+
+  .item,
+  .itemName,
+  .itemName::after,
+  .itemPrice {
+    transition: none;
+  }
+
+  .item:hover:not(:disabled),
+  .item:focus-visible:not(:disabled) {
+    padding-left: 4px;
+  }
+
+  .item:hover:not(:disabled) .itemName::after,
+  .item:focus-visible:not(:disabled) .itemName::after {
+    transform: none;
   }
 }

@@ -421,7 +421,7 @@ export default function MenuGallery() {
                     src={drink.image}
                     alt={`${drink.name} — ${drink.notes}`}
                     fill
-                    sizes="(max-width: 768px) 80vw, 50vw"
+                    sizes="(max-width: 1099px) 70vw, (max-width: 1439px) 36vw, 42vw"
                     priority={i < 3}
                     draggable={false}
                   />

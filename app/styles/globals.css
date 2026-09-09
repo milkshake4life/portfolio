@@ -87,6 +87,13 @@ body[data-lightbox-open] [data-site-chrome="top"] a:hover {
   opacity: 1;
 }
 
+@media (max-width: 1099px) {
+  body[data-lightbox-open] [data-site-chrome="counter"] {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
 /* Resting state: transparent shadow so it interpolates cleanly, and a
    transition that runs when the treatment is removed (timed to the close
    morph). The shadow color animates from invisible to visible. */

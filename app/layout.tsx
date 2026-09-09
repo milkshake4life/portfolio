@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Archivo, Inter, IBM_Plex_Mono, Source_Serif_4 } from "next/font/google";
 import SmoothScroll from "@/components/SmoothScroll";
 import PageTransition from "@/components/PageTransition";
@@ -42,6 +42,10 @@ export const metadata: Metadata = {
   title: "Ethan G.R. Lee — Product Designer",
   description:
     "Product designer crafting quiet, considered digital experiences. Brewing coffee and tea on the side.",
+};
+
+export const viewport: Viewport = {
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

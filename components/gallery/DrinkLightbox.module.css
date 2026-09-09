@@ -205,15 +205,22 @@
   border-color: var(--text);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1099px) {
   .thumbs {
-    left: calc(50% + 2rem);
-    max-width: calc(50vw - var(--gutter) - 1rem);
+    left: var(--gutter);
+    right: var(--gutter);
+    max-width: none;
+    bottom: calc(var(--bottom-meta) + 1.65rem);
   }
 
   .journal {
     max-width: calc(100vw - 2 * var(--gutter));
-    bottom: calc(var(--bottom-meta) + 3.5rem);
+    bottom: calc(var(--bottom-meta) + 4.35rem);
+  }
+
+  .journal::before {
+    width: 100vw;
+    height: min(28rem, 52vh);
   }
 
   .journalEntry {

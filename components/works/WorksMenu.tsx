@@ -7,6 +7,7 @@ import { Flip } from "gsap/Flip";
 import { useGSAP } from "@gsap/react";
 import { projectsByCategory, getProject } from "@/lib/projects";
 import { EASE, DUR } from "@/lib/motion";
+import { DESKTOP_MQ } from "@/lib/layout";
 import ProjectProfileCard from "@/components/works/ProjectProfileCard";
 import styles from "./WorksMenu.module.css";
 
@@ -126,7 +127,7 @@ export default function WorksMenu() {
       const reduced = window.matchMedia(
         "(prefers-reduced-motion: reduce)"
       ).matches;
-      const desktop = window.matchMedia("(min-width: 900px)").matches;
+      const desktop = window.matchMedia(DESKTOP_MQ).matches;
 
       const startSequence = () => {
         const placeholder = placeholderRef.current;
@@ -264,7 +265,7 @@ export default function WorksMenu() {
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
-    const desktop = window.matchMedia("(min-width: 900px)").matches;
+    const desktop = window.matchMedia(DESKTOP_MQ).matches;
     const { drink, card, back, menu, split } = getServingParts();
     const cardFrame = cardSlotRef.current?.parentElement;
 
@@ -456,7 +457,7 @@ export default function WorksMenu() {
       ).matches;
       const duration = reduced ? 0 : DUR.base;
       const ease = EASE.out;
-      const desktop = window.matchMedia("(min-width: 900px)").matches;
+      const desktop = window.matchMedia(DESKTOP_MQ).matches;
 
       if (isShowing) {
         gsap.to(placeholder, {

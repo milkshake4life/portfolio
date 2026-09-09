@@ -90,18 +90,18 @@
 }
 
 .isProfile .drinkBlock {
-  width: min(520px, 48vw);
+  width: min(var(--photo-drink), var(--photo-drink-vw));
   height: auto;
   position: relative;
   flex-shrink: 0;
-  min-width: min(520px, 48vw);
+  min-width: min(var(--photo-drink), var(--photo-drink-vw));
 }
 
 /* Laptops: same height as the phone seat so they sit like Scope / Studio */
 .isProfile .drinkBlock:has(.drinkWide) {
-  --phone-h: calc(520px * 864 / 831);
-  width: min(calc(var(--phone-h) * var(--drink-w) / var(--drink-h)), 44vw);
-  min-width: min(calc(var(--phone-h) * var(--drink-w) / var(--drink-h)), 44vw);
+  --phone-h: calc(var(--photo-drink) * 864 / 831);
+  width: min(calc(var(--phone-h) * var(--drink-w) / var(--drink-h)), var(--photo-drink-wide-vw));
+  min-width: min(calc(var(--phone-h) * var(--drink-w) / var(--drink-h)), var(--photo-drink-wide-vw));
 }
 
 .isProfile .drink {
@@ -118,8 +118,8 @@
 /* ---- Case study card — sized to match the menu sheet (480 / 40×52) ---- */
 .card {
   flex: 0 0 auto;
-  width: min(480px, 100%);
-  max-width: 480px;
+  width: min(var(--menu-width), 100%);
+  max-width: var(--menu-width);
   background: var(--paper);
   border: 1px solid var(--paper-edge);
   color: var(--ink);
@@ -151,8 +151,8 @@
 
 .isProfile .card {
   position: relative;
-  width: min(480px, 100%);
-  max-width: 480px;
+  width: min(var(--menu-width), 100%);
+  max-width: var(--menu-width);
   height: auto;
   padding: 40px 52px;
   margin-left: clamp(2rem, 5vw, 5rem);
@@ -316,7 +316,7 @@
   padding-left: 0;
 }
 
-@media (max-width: 899px) {
+@media (max-width: 1099px) {
   .serving {
     flex-direction: column;
     gap: 1.25rem;
@@ -345,18 +345,22 @@
   }
 
   .isProfile .drinkBlock {
-    width: min(100%, 520px);
+    width: min(100%, var(--photo-drink));
     min-width: 0;
   }
 
   .isProfile .drinkBlock:has(.drinkWide) {
-    width: min(100%, 720px);
+    width: min(100%, 36rem);
     min-width: 0;
+  }
+
+  .isProfile {
+    gap: 2rem;
   }
 
   .card,
   .isProfile .card {
-    width: min(480px, 100%);
+    width: min(var(--menu-width), 100%);
     padding: 32px 28px;
     margin-left: 0;
   }

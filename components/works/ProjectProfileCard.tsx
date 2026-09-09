@@ -58,7 +58,7 @@ export default function ProjectProfileCard({
             src={project.cover}
             alt=""
             fill
-            sizes="(max-width: 900px) 90vw, 1400px"
+            sizes="(max-width: 1099px) 90vw, (max-width: 1439px) 48vw, 50vw"
             priority
             unoptimized={project.cover.endsWith(".png")}
             className={styles.drinkImg}

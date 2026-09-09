@@ -8,7 +8,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 var(--gutter);
+  padding: var(--safe-top) var(--gutter) 0;
   mix-blend-mode: difference; /* stays legible over imagery */
 }
 
@@ -42,4 +42,22 @@
 .link:hover,
 .active {
   opacity: 1;
+}
+
+@media (max-width: 430px) {
+  .links {
+    gap: 1.1rem;
+  }
+
+  .link {
+    letter-spacing: 0.1em;
+  }
+
+  .wordmark {
+    font-size: var(--text-micro);
+    max-width: calc(100vw - 6.5rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }

@@ -75,7 +75,7 @@ export default function AboutContent() {
               alt="Ethan G.R. Lee"
               fill
               priority
-              sizes="(max-width: 900px) 100vw, 20rem"
+              sizes="(max-width: 1099px) 100vw, 28rem"
               className={styles.portraitImage}
             />
           </div>
@@ -108,7 +108,7 @@ export default function AboutContent() {
                   src={item.image}
                   alt={item.imageAlt}
                   fill
-                  sizes="(max-width: 900px) 100vw, 50vw"
+                  sizes="(max-width: 1099px) 100vw, 50vw"
                   className={styles.roleImage}
                 />
               </div>

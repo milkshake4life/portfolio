@@ -47,7 +47,7 @@ export default function CaseStudy({
               src={src}
               alt={`${project.title} — image ${i + 1}`}
               fill
-              sizes="(max-width: 768px) 100vw, 80vw"
+              sizes="(max-width: 1099px) 100vw, 80vw"
             />
           </figure>
         ))}

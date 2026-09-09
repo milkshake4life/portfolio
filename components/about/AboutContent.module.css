@@ -36,7 +36,7 @@
 }
 
 .panelInner {
-  width: min(100%, 68rem);
+  width: min(100%, var(--about-panel-max));
 }
 
 .panelHead {
@@ -53,7 +53,7 @@
 
 /* ---- 1. Intro ---- */
 .introLayout {
-  --portrait-size: 20rem;
+  --portrait-size: var(--photo-portrait);
 
   display: grid;
   grid-template-columns: minmax(0, 22.5rem) var(--portrait-size);
@@ -198,7 +198,16 @@
   color: var(--text);
 }
 
-@media (max-width: 899px) {
+@media (min-width: 1100px) and (max-width: 1439px) {
+  .panel {
+    padding:
+      calc(var(--nav-height) + clamp(0.75rem, 2vh, 1.25rem))
+      var(--gutter)
+      calc(var(--bottom-meta) + clamp(0.75rem, 2vh, 1.25rem));
+  }
+}
+
+@media (max-width: 1099px) {
   .about {
     padding-bottom: calc(var(--bottom-meta) + clamp(3rem, 8vh, 5rem));
   }
@@ -214,12 +223,19 @@
   }
 
   .panel:first-child {
-    min-height: 100svh;
+    min-height: auto;
     padding-top: calc(var(--nav-height) + clamp(2rem, 6vh, 3rem));
   }
 
+  .introLayout,
+  .panelInner,
+  .contactInner {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   .introLayout {
-    --portrait-size: min(20rem, 100%);
+    --portrait-size: min(var(--photo-portrait), 100%);
 
     grid-template-columns: 1fr;
     gap: clamp(2.5rem, 6vh, 3.5rem);

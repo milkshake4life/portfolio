@@ -41,15 +41,49 @@
   --leading-tight: 0.95;
   --leading-body: 1.6;
 
+  /* ---- Breakpoint bands (values for docs / JS; media queries use literals)
+     stack:   max 1099px  — phone / tablet / resized desktop (single sheet)
+     laptop:  1100–1439px — two-pane table, tighter padding
+     desktop: 1440–1919px — grow photography
+     wide:    1920px+     — grow photos more; paper stays ~480
+     phone:   max 430px   — chrome collision / paper overflow only
+  ---- */
+  --bp-stack: 1099px;
+  --bp-laptop: 1100px;
+  --bp-desktop: 1440px;
+  --bp-wide: 1920px;
+  --bp-phone: 430px;
+
+  /* ---- Safe areas (requires viewport-fit=cover) ---- */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+
   /* ---- Spacing & layout ---- */
-  --gutter: clamp(1.25rem, 4vw, 4rem);
+  --gutter: max(
+    clamp(1.25rem, 4vw, 4rem),
+    var(--safe-left),
+    var(--safe-right)
+  );
   --space-xs: 0.5rem;
   --space-sm: 1rem;
   --space-md: 2rem;
   --space-lg: clamp(3rem, 8vh, 6rem);
   --space-xl: clamp(6rem, 16vh, 12rem);
-  --nav-height: 4.5rem;
-  --bottom-meta: var(--gutter);
+  --nav-height: calc(4.5rem + var(--safe-top));
+  --bottom-meta: max(var(--gutter), calc(var(--safe-bottom) + 0.75rem));
+
+  /* Paper menu + case-study card — do not scale with monitor size */
+  --menu-width: 480px;
+
+  /* Photography scale — laptop-sized default, grown at 1440 / 1920 */
+  --photo-gallery-h: min(52svh, 28rem);
+  --photo-drink: 520px;
+  --photo-drink-vw: 48vw;
+  --photo-drink-wide-vw: 44vw;
+  --photo-portrait: 20rem;
+  --about-panel-max: 68rem;
 
   /* ---- Motion (shared with GSAP via lib/motion.ts) ---- */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -65,4 +99,28 @@
   --z-transition: 200;
   --z-grain: 400;
   --z-preloader: 450;
+}
+
+/* Desktop: grow photography, not the paper or type */
+@media (min-width: 1440px) {
+  :root {
+    --photo-gallery-h: min(62svh, 42rem);
+    --photo-drink: 600px;
+    --photo-drink-vw: 42vw;
+    --photo-drink-wide-vw: 48vw;
+    --photo-portrait: 24rem;
+    --about-panel-max: 76rem;
+  }
+}
+
+/* Wide / 4K: larger prints; menu sheet stays 480 */
+@media (min-width: 1920px) {
+  :root {
+    --photo-gallery-h: min(64svh, 48rem);
+    --photo-drink: 680px;
+    --photo-drink-vw: 38vw;
+    --photo-drink-wide-vw: 48vw;
+    --photo-portrait: 28rem;
+    --about-panel-max: 84rem;
+  }
 }

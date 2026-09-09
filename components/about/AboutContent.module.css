@@ -1,5 +1,62 @@
 .about {
+  --about-map-col: min(11.25rem, 16vw);
+  --about-column: min(
+    100%,
+    calc(22.5rem + 4rem + var(--photo-portrait))
+  );
+
   padding: 0;
+}
+
+.pages {
+  min-width: 0;
+}
+
+/* ---- Document minimap (desktop overlay) ---- */
+.map {
+  display: none;
+}
+
+.mapViewport {
+  position: relative;
+  overflow: hidden;
+}
+
+.mapCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  transform-origin: top left;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mapFrame {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border: 1px solid rgba(239, 239, 239, 0.42);
+  border-radius: 1px;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+}
+
+.mapHits {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+}
+
+.mapHit {
+  flex: 1 1 0;
+  width: 100%;
+  min-height: 0;
+  padding: 0;
+  background: transparent;
 }
 
 .kicker {
@@ -14,7 +71,6 @@
 .bio,
 .roleBody,
 .cafe,
-.facts li,
 .contactLine {
   font-size: 0.9375rem;
   font-weight: 400;
@@ -36,19 +92,16 @@
 }
 
 .panelInner {
-  width: min(100%, var(--about-panel-max));
-}
-
-.panelHead {
-  margin-bottom: clamp(1.5rem, 4vh, 2.5rem);
+  width: min(100%, var(--about-column));
 }
 
 .sectionTitle {
-  font-size: clamp(1.35rem, 2.6vw, 2rem);
+  font-size: clamp(1.5rem, 2.8vw, 2.15rem);
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   line-height: 1.15;
   color: var(--text);
+  margin-bottom: clamp(1.35rem, 3.5vh, 2.15rem);
 }
 
 /* ---- 1. Intro ---- */
@@ -59,11 +112,11 @@
   grid-template-columns: minmax(0, 22.5rem) var(--portrait-size);
   align-items: start;
   gap: clamp(2.5rem, 5vw, 4rem);
-  width: min(100%, calc(22.5rem + 4rem + var(--portrait-size)));
+  width: var(--about-column);
 }
 
 .introItem {
-  opacity: 0;
+  will-change: auto;
 }
 
 .introCopy {
@@ -80,7 +133,6 @@
   position: relative;
   width: var(--portrait-size);
   aspect-ratio: 1 / 1;
-  background: var(--surface);
 }
 
 .portraitImage {
@@ -91,13 +143,13 @@
 /* ---- 2–3. Side work panels ---- */
 .role {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-  gap: clamp(1.75rem, 4vw, 3.5rem);
-  align-items: center;
+  grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.9fr);
+  gap: clamp(1.75rem, 3.5vw, 3rem);
+  align-items: start;
 }
 
 .panel:nth-of-type(3) .role {
-  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  grid-template-columns: minmax(16rem, 0.9fr) minmax(0, 1.35fr);
 }
 
 .panel:nth-of-type(3) .roleMedia {
@@ -106,29 +158,33 @@
 
 .roleMedia {
   position: relative;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  background: var(--surface);
+  width: min(100%, 52vh, 34rem);
+  justify-self: start;
+}
+
+.panel:nth-of-type(3) .roleMedia {
+  justify-self: end;
 }
 
 .roleImage {
-  object-fit: contain;
-  padding: 1.25rem;
+  object-fit: cover;
+  object-position: left center;
 }
 
 .roleMeta {
-  font-size: var(--text-micro);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: var(--text-small);
+  font-weight: 400;
+  letter-spacing: -0.01em;
   color: var(--text-muted);
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.85rem;
 }
 
-.roleTitle {
-  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  margin-bottom: 0.85rem;
+.roleDates {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: var(--text-micro);
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
 }
 
 .roleBody {
@@ -136,40 +192,15 @@
 }
 
 /* ---- 4. Passions ---- */
-.passions {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-  gap: clamp(2rem, 5vw, 4rem);
-  align-items: start;
-}
-
 .cafe {
   color: var(--text-muted);
   max-width: 36rem;
 }
 
-.facts {
-  display: flex;
-  flex-direction: column;
-  gap: 1.15rem;
-  padding-top: 0.15rem;
-}
-
-.facts li {
-  color: var(--text-muted);
-  padding-top: 1.15rem;
-  border-top: 1px solid var(--line);
-}
-
-.facts li:first-child {
-  padding-top: 0;
-  border-top: none;
-}
-
 /* ---- 5. Contact ---- */
 .contactInner {
-  max-width: 36rem;
-  width: 100%;
+  width: min(100%, var(--about-column));
+  max-width: var(--about-column);
 }
 
 .contactLine {
@@ -198,12 +229,50 @@
   color: var(--text);
 }
 
+@media (min-width: 1100px) {
+  .map {
+    display: flex;
+    align-items: center;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    height: 100svh;
+    width: var(--about-map-col);
+    padding:
+      calc(var(--nav-height) + 0.85rem)
+      0
+      calc(var(--bottom-meta) + 0.35rem)
+      max(0.85rem, calc(var(--gutter) * 0.35));
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .mapViewport {
+    pointer-events: auto;
+  }
+
+  .panelInner,
+  .contactInner {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .panel:has(.role) .panelInner {
+    width: min(
+      calc(var(--about-column) + clamp(4rem, 10vw, 10rem)),
+      calc(100% - ((100% - var(--about-column)) / 2) - var(--gutter))
+    );
+    margin-left: max(0px, calc((100% - var(--about-column)) / 2));
+    margin-right: auto;
+  }
+}
+
 @media (min-width: 1100px) and (max-width: 1439px) {
   .panel {
-    padding:
-      calc(var(--nav-height) + clamp(0.75rem, 2vh, 1.25rem))
-      var(--gutter)
-      calc(var(--bottom-meta) + clamp(0.75rem, 2vh, 1.25rem));
+    padding-top: calc(var(--nav-height) + clamp(0.75rem, 2vh, 1.25rem));
+    padding-right: var(--gutter);
+    padding-bottom: calc(var(--bottom-meta) + clamp(0.75rem, 2vh, 1.25rem));
   }
 }
 
@@ -232,6 +301,7 @@
   .contactInner {
     margin-left: auto;
     margin-right: auto;
+    max-width: 22.5rem;
   }
 
   .introLayout {
@@ -253,10 +323,11 @@
 
   .panel:nth-of-type(3) .roleMedia {
     order: 0;
+    justify-self: start;
   }
 
-  .passions {
-    grid-template-columns: 1fr;
+  .roleMedia {
+    width: min(100%, 22.5rem);
   }
 }
 

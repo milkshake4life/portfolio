@@ -15,6 +15,30 @@ gsap.registerPlugin(useGSAP, Flip);
 
 const SECTIONS = projectsByCategory();
 const HOVER_CLEAR_MS = 80;
+/** Lets the Mac trackpad / browser back close a project instead of leaving Menu. */
+const MENU_PROJECT_KEY = "menuProject";
+
+function historyHasProject() {
+  return Boolean(
+    typeof window !== "undefined" &&
+      window.history.state &&
+      typeof window.history.state === "object" &&
+      window.history.state[MENU_PROJECT_KEY]
+  );
+}
+
+function pushProjectHistory(slug: string) {
+  const prev =
+    window.history.state && typeof window.history.state === "object"
+      ? window.history.state
+      : {};
+  if (prev[MENU_PROJECT_KEY] === slug) return;
+  window.history.pushState(
+    { ...prev, [MENU_PROJECT_KEY]: slug },
+    "",
+    window.location.href
+  );
+}
 
 const PROFILE_SEQUENCE = {
   menuExit: { duration: 0.78, x: -200, ease: "power3.inOut" },
@@ -61,6 +85,8 @@ export default function WorksMenu() {
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
   const [pinnedSlug, setPinnedSlug] = useState<string | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
+  const profileOpenRef = useRef(false);
+  profileOpenRef.current = profileOpen;
 
   const displaySlug = hoveredSlug ?? pinnedSlug;
   const displayed = displaySlug ? getProject(displaySlug) : undefined;
@@ -118,6 +144,7 @@ export default function WorksMenu() {
 
       openingRef.current = true;
       clearHoverTimer();
+      pushProjectHistory(slug);
 
       flushSync(() => {
         setHoveredSlug(null);
@@ -391,9 +418,27 @@ export default function WorksMenu() {
     }, phoneAt);
   }, [getServingParts]);
 
+  const requestMenuBack = useCallback(() => {
+    if (historyHasProject()) {
+      window.history.back();
+      return;
+    }
+    backToMenu();
+  }, [backToMenu]);
+
   useEffect(() => {
     return () => clearHoverTimer();
   }, [clearHoverTimer]);
+
+  useEffect(() => {
+    const onPop = () => {
+      if (profileOpenRef.current || openingRef.current) {
+        backToMenu();
+      }
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [backToMenu]);
 
   useEffect(() => {
     if (!isPinned && !profileOpen) return;
@@ -401,7 +446,7 @@ export default function WorksMenu() {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
       if (profileOpen) {
-        backToMenu();
+        requestMenuBack();
         return;
       }
       setPinnedSlug(null);
@@ -409,7 +454,7 @@ export default function WorksMenu() {
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [isPinned, profileOpen, backToMenu]);
+  }, [isPinned, profileOpen, requestMenuBack]);
 
   // Initial reveal — menu + right pane together
   useGSAP(
@@ -535,7 +580,7 @@ export default function WorksMenu() {
         ref={backRef}
         type="button"
         className={styles.back}
-        onClick={backToMenu}
+        onClick={requestMenuBack}
         aria-hidden={!profileOpen}
         tabIndex={profileOpen ? 0 : -1}
       >

@@ -27,7 +27,7 @@
   /* ---- Typography ---- */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-source-serif), "Times New Roman", Times, serif;
+  --font-serif: "Times New Roman", Times, serif;
 
   /* Oversized, viewport-relative display scale */
   --text-display: clamp(3rem, 11vw, 11rem); /* hero / project titles */

@@ -2,20 +2,31 @@
 
 import { usePathname } from "next/navigation";
 import { TransitionLink } from "@/components/PageTransition";
+import { SOCIAL_LINKS } from "@/lib/about";
 import styles from "./Nav.module.css";
 
 const LINKS = [
-  { href: "/", label: "Menu", wordmark: "The Menu" },
+  { href: "/", label: "Work", wordmark: "Work" },
   { href: "/about", label: "About", wordmark: "About" },
-  { href: "/gallery", label: "Journal", wordmark: "Journal" },
+  { href: "/coffee", label: "Coffee", wordmark: "Coffee" },
 ] as const;
+
+const FOOTER_ORDER = ["Email", "LinkedIn", "Resume"] as const;
+
+const FOOTER_LINKS = FOOTER_ORDER.map((label) => {
+  const link = SOCIAL_LINKS.find((item) => item.label === label);
+  if (!link) {
+    throw new Error(`Missing social link: ${label}`);
+  }
+  return link;
+});
 
 function getSection(pathname: string) {
   if (pathname.startsWith("/about")) {
     return LINKS.find((link) => link.href === "/about") ?? LINKS[0];
   }
-  if (pathname.startsWith("/gallery")) {
-    return LINKS.find((link) => link.href === "/gallery") ?? LINKS[0];
+  if (pathname.startsWith("/coffee") || pathname.startsWith("/gallery")) {
+    return LINKS.find((link) => link.href === "/coffee") ?? LINKS[0];
   }
   return LINKS[0];
 }
@@ -33,7 +44,10 @@ export default function Nav() {
               const active =
                 href === "/"
                   ? pathname === "/" || pathname.startsWith("/works")
-                  : pathname.startsWith(href);
+                  : href === "/coffee"
+                    ? pathname.startsWith("/coffee") ||
+                      pathname.startsWith("/gallery")
+                    : pathname.startsWith(href);
               return (
                 <li key={href}>
                   <TransitionLink
@@ -57,6 +71,25 @@ export default function Nav() {
       >
         Ethan G.R. Lee — {section.wordmark}
       </TransitionLink>
+
+      <nav className={styles.footer} data-site-chrome="footer" aria-label="Contact">
+        <ul className={styles.footerLinks}>
+          {FOOTER_LINKS.map(({ label, href }) => (
+            <li key={label}>
+              <a
+                href={href}
+                className={styles.footerLink}
+                target={href.startsWith("mailto:") ? undefined : "_blank"}
+                rel={
+                  href.startsWith("mailto:") ? undefined : "noopener noreferrer"
+                }
+              >
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </>
   );
 }

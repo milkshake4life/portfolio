@@ -24,6 +24,31 @@
   color: var(--text-muted);
 }
 
+.footer {
+  position: fixed;
+  bottom: var(--bottom-meta);
+  right: 0;
+  z-index: var(--z-chrome);
+  padding: 0 var(--gutter);
+}
+
+.footerLinks {
+  display: flex;
+  gap: clamp(0.9rem, 2vw, 1.35rem);
+}
+
+.footerLink {
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  transition: color var(--dur-fast) ease;
+}
+
+.footerLink:hover {
+  color: var(--text);
+}
+
 .links {
   display: flex;
   gap: clamp(1.25rem, 3vw, 2.5rem);
@@ -42,6 +67,14 @@
 .link:hover,
 .active {
   opacity: 1;
+}
+
+@media (max-width: 1099px) {
+  .footer {
+    left: 0;
+    right: auto;
+    bottom: calc(var(--bottom-meta) + 1.35rem);
+  }
 }
 
 @media (max-width: 430px) {

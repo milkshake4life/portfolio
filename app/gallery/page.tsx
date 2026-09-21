@@ -1,12 +1,5 @@
-import type { Metadata } from "next";
-import MenuGallery from "@/components/gallery/MenuGallery";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Journal — Ethan G.R. Lee",
-  description:
-    "A journal of custom-curated coffee and tea, photographed before they disappeared.",
-};
-
-export default function GalleryPage() {
-  return <MenuGallery />;
+export default function GalleryRedirect() {
+  redirect("/coffee");
 }

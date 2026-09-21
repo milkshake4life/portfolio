@@ -1,0 +1,177 @@
+.card {
+  --paper: #f2eee4;
+  --paper-edge: #e7e1d3;
+  --ink: #17140f;
+  --ink-soft: #57503f;
+  --line: rgba(23, 20, 15, 0.16);
+  --seal: #7a3324;
+  --font-card: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-card-serif: var(--font-source-serif), "Times New Roman", Times, serif;
+
+  box-sizing: border-box;
+  width: var(--menu-width);
+  background: var(--paper);
+  border: 1px solid var(--paper-edge);
+  color: var(--ink);
+  padding: 40px 52px;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-card);
+  text-align: left;
+  box-shadow:
+    0 40px 80px -30px rgba(0, 0, 0, 0.7),
+    0 2px 0 rgba(0, 0, 0, 0.03);
+}
+
+.eyebrowRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 34px;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.eyebrowRight {
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.title {
+  font-family: var(--font-card);
+  font-weight: 900;
+  font-size: 3.625rem;
+  letter-spacing: -0.01em;
+  line-height: 0.92;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0 0 18px;
+}
+
+.titleCompact {
+  font-size: 2.75rem;
+}
+
+.titleTight {
+  font-size: 2.25rem;
+}
+
+.titleRule {
+  width: 64px;
+  height: 3px;
+  background: var(--ink);
+  margin-bottom: 30px;
+}
+
+.specs {
+  margin-bottom: 30px;
+}
+
+.specRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 20px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.specRow:first-child {
+  border-top: 1px solid var(--line);
+}
+
+.specLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.specValue {
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--ink);
+  text-align: right;
+}
+
+.notesValue {
+  font-style: italic;
+  font-family: var(--font-card-serif);
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.notesCompact {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.award {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--seal);
+}
+
+.award::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--seal);
+  flex-shrink: 0;
+}
+
+.story {
+  margin-top: 4px;
+}
+
+.storyLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 14px;
+}
+
+.storyBody {
+  font-family: var(--font-card-serif);
+  font-size: 16.5px;
+  font-weight: 400;
+  line-height: 1.62;
+  color: var(--ink);
+  margin: 0;
+}
+
+.footerRow {
+  margin-top: 36px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 1099px) {
+  .card {
+    width: min(var(--menu-width), 100%);
+    padding: 32px 28px;
+  }
+
+  .title {
+    font-size: 2.75rem;
+  }
+}

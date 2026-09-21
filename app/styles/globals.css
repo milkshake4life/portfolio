@@ -88,7 +88,16 @@ body[data-lightbox-open] [data-site-chrome="top"] a:hover {
 }
 
 @media (max-width: 1099px) {
-  body[data-lightbox-open] [data-site-chrome="counter"] {
+  body[data-lightbox-open] [data-site-chrome="counter"],
+  body[data-lightbox-open] [data-site-chrome="footer"] {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+@media (min-width: 1100px) {
+  body[data-lightbox-open] [data-site-chrome="counter"],
+  body[data-lightbox-open] [data-site-chrome="footer"] {
     visibility: hidden;
     pointer-events: none;
   }
@@ -98,7 +107,8 @@ body[data-lightbox-open] [data-site-chrome="top"] a:hover {
    transition that runs when the treatment is removed (timed to the close
    morph). The shadow color animates from invisible to visible. */
 [data-site-chrome="wordmark"],
-[data-site-chrome="counter"] {
+[data-site-chrome="counter"],
+[data-site-chrome="footer"] {
   text-shadow:
     0 1px 6px rgba(0, 0, 0, 0),
     0 0 18px rgba(0, 0, 0, 0);
@@ -192,6 +202,7 @@ body[data-lightbox-open] [data-site-chrome="counter"] {
   }
   [data-site-chrome="wordmark"],
   [data-site-chrome="counter"],
+  [data-site-chrome="footer"],
   body[data-lightbox-open] [data-site-chrome="wordmark"],
   body[data-lightbox-open] [data-site-chrome="counter"] {
     transition: none;

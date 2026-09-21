@@ -21,7 +21,6 @@ const plexMono = IBM_Plex_Mono({
   variable: "--font-mono-label",
 });
 
-// Case-study card display + labels.
 const archivo = Archivo({
   subsets: ["latin"],
   weight: ["500", "700", "900"],
@@ -29,7 +28,6 @@ const archivo = Archivo({
   variable: "--font-archivo",
 });
 
-// Editorial body on the drink profile card.
 const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
   weight: ["400"],

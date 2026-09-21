@@ -21,12 +21,21 @@
   display: flex;
   align-items: center;
   width: max-content;
-  gap: clamp(1.5rem, 3vw, 3.5rem);
+  /* Room for the centred tray to grow without sitting on its neighbours. */
+  gap: calc(var(--photo-gallery-h) * 0.2);
   --card-half-w: calc(var(--photo-gallery-h) * 3 / 8);
-  padding-left: calc(50vw - var(--card-half-w));
-  /* Extra room so the last card can scroll to center */
-  padding-right: calc(50vw - var(--card-half-w));
+  /* End margins, not padding: flex padding-right is often left out of the
+     scroll width, which parked the last tray short of centre. */
+  --strip-pad: calc(50vw - var(--card-half-w));
   will-change: transform;
+}
+
+.item:first-child {
+  margin-left: var(--strip-pad);
+}
+
+.item:last-child {
+  margin-right: var(--strip-pad);
 }
 
 .item {
@@ -35,13 +44,22 @@
   opacity: 0;
 }
 
+/* A project stands on a shelf drawn near the foot of its frame, so the frame
+   alone sits centred while the composition reads low. The whole tile — tray,
+   screenshot and caption together — rides up to put the composition, not the
+   empty frame, on the middle of the screen. Kept on `translate` so it composes
+   with the transform GSAP animates on reveal. */
+.itemTray {
+  translate: 0 calc(var(--photo-gallery-h) * -0.13);
+}
+
 .openBtn {
   display: block;
   cursor: grab;
 }
 
 .openBtn:hover {
-  cursor: zoom-in;
+  cursor: pointer;
 }
 
 .viewport[data-dragging="true"] .openBtn,
@@ -49,19 +67,42 @@
   cursor: grabbing;
 }
 
+/* Scale and opacity are driven per frame from the strip's position — see the
+   focus pass in MenuGallery.tsx. The origin is the height the tray floor is
+   drawn at, so the centred card grows up out of the shelf line rather than
+   lifting off it, and the shelf stays unbroken across the strip. */
 .media {
   position: relative;
   height: var(--photo-gallery-h);
   aspect-ratio: 3 / 4;
   overflow: hidden;
+  transform-origin: 50% 92%;
+}
+
+.mediaPhoto {
   background: var(--surface);
+}
+
+/* Project tiles are a composition on the page's own black, so the frame
+   itself never reads as a card edge. Scale from the tray floor so the
+   centred card grows up out of the shelf line rather than lifting off it. */
+.mediaTray {
+  background: var(--bg);
+  transform-origin: 50% 92%;
 }
 
 .mediaHidden {
   visibility: hidden;
 }
 
-.media img {
+/* The clicked product stays on the page while its tray recedes; the
+   screenshot and mini card are covered by the lightbox serving copies. */
+.mediaOpen [data-tray-screens],
+.mediaOpen [data-tray-card] {
+  visibility: hidden;
+}
+
+.mediaPhoto img {
   object-fit: cover;
   object-position: calc(var(--card-x, 50) * 1%) calc(var(--card-y, 50) * 1%);
   transform-origin: calc(var(--card-x, 50) * 1%) calc(var(--card-y, 50) * 1%);
@@ -69,9 +110,13 @@
   transition: transform var(--dur-base) var(--ease-out-expo);
 }
 
+.mediaTray > * {
+  transition: transform var(--dur-base) var(--ease-out-expo);
+}
+
 .caption {
   position: absolute;
-  top: calc(100% + 0.875rem);
+  top: calc(100% - 2.3rem);
   left: 0;
   right: 0;
   display: flex;
@@ -83,6 +128,11 @@
   transition: opacity var(--dur-base) var(--ease-out-expo),
     transform var(--dur-base) var(--ease-out-expo);
   pointer-events: none;
+}
+
+.caption .captionIndex,
+.caption .captionNotes {
+  font-size: var(--text-small);
 }
 
 .captionIndex {
@@ -98,24 +148,40 @@
   line-height: 1.35;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .item:hover .caption {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.item[data-spotlight] .caption {
+  opacity: 1;
+  transform: translateY(0);
+}
 
-  .openBtn:hover .media img {
+.gallery[data-lightbox] .caption {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.gallery[data-lightbox] .counter {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .openBtn:hover .mediaPhoto img {
     transform: scale(calc(var(--card-zoom, 1) * 1.03));
   }
 
-  .viewport[data-dragging="true"] .openBtn:hover .media img {
+  .viewport[data-dragging="true"] .openBtn:hover .mediaPhoto img {
     transform: scale(var(--card-zoom, 1));
   }
-}
 
-@media (hover: none), (max-width: 1099px) {
-  .caption {
-    opacity: 1;
+  /* The screenshot is never cropped, so the whole composition lifts instead. */
+  .openBtn:hover .mediaTray > * {
+    transform: scale(1.02);
+  }
+
+  .viewport[data-dragging="true"] .openBtn:hover .mediaTray > * {
+    transform: none;
+  }
+
+  .gallery[data-lightbox] .openBtn:hover .mediaTray > * {
     transform: none;
   }
 }
@@ -164,7 +230,7 @@
 
 @media (max-width: 1099px) {
   .viewport {
-    padding-bottom: calc(var(--bottom-meta) + 4rem);
+    padding-bottom: calc(var(--bottom-meta) + 5.25rem);
   }
 
   .captionNotes {

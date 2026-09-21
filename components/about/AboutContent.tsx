@@ -9,6 +9,7 @@ import {
 } from "react";
 import Image from "next/image";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLenis } from "lenis/react";
 import {
   ABOUT_BIO,
@@ -17,19 +18,19 @@ import {
   ABOUT_PORTRAIT,
   CAFE_DREAM,
   CAFE_TITLE,
-  CONTACT_LINE,
   SIDE_WORK,
-  SOCIAL_LINKS,
 } from "@/lib/about";
 import { DESKTOP_MQ } from "@/lib/layout";
-import { EASE } from "@/lib/motion";
+import { RIPPLE } from "@/lib/motion";
+import BeliWidget from "./BeliWidget";
 import styles from "./AboutContent.module.css";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const MAP_LABELS = [
   ABOUT_KICKERS.intro,
   ...SIDE_WORK.map((item) => item.title),
   CAFE_TITLE,
-  ABOUT_KICKERS.contact,
 ];
 
 function isDesktop() {
@@ -44,38 +45,99 @@ export default function AboutContent() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef(0);
+  const panelsRef = useRef<HTMLElement[]>([]);
+  const mapMetricsRef = useRef({
+    scale: 1,
+    visualH: 1,
+    pageH: 1,
+    viewH: 1,
+  });
   const lenis = useLenis();
   const [active, setActive] = useState(0);
 
   useLayoutEffect(() => {
-    const items = pagesRef.current?.querySelectorAll(`.${styles.introItem}`);
-    if (!items?.length) return;
+    const pages = pagesRef.current;
+    if (!pages) return;
+
+    const items = pages.querySelectorAll<HTMLElement>(`.${styles.ripple}`);
+    if (!items.length) return;
 
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
 
     if (reduced) {
-      gsap.set(items, { autoAlpha: 1, x: 0 });
+      gsap.set(items, { autoAlpha: 1, y: 0 });
       return;
     }
 
-    const tween = gsap.fromTo(
-      items,
-      { autoAlpha: 0, x: 56, willChange: "transform, opacity" },
-      {
-        autoAlpha: 1,
-        x: 0,
-        duration: 1.5,
-        ease: EASE.out,
-        stagger: 0.08,
-        delay: 0.12,
-        clearProps: "willChange",
-      }
+    gsap.set(items, { autoAlpha: 0, y: RIPPLE.rise });
+
+    const playRipple = (container: HTMLElement) => {
+      const group = Array.from(
+        container.querySelectorAll<HTMLElement>(`.${styles.ripple}`)
+      );
+      if (!group.length) return;
+
+      group.sort(
+        (a, b) =>
+          b.getBoundingClientRect().bottom - a.getBoundingClientRect().bottom
+      );
+
+      gsap.fromTo(
+        group,
+        { autoAlpha: 0, y: RIPPLE.rise, willChange: "transform, opacity" },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: RIPPLE.duration,
+          ease: RIPPLE.ease,
+          stagger: { each: RIPPLE.stagger, ease: "power1.out" },
+          delay: RIPPLE.delay,
+          clearProps: "willChange",
+        }
+      );
+    };
+
+    const panels = Array.from(
+      pages.querySelectorAll<HTMLElement>("[data-about-panel]")
+    );
+    const first = panels[0];
+    const later = panels.slice(1);
+
+    const start = () => {
+      if (first) playRipple(first);
+    };
+
+    const welcome = document.querySelector("[aria-label='Introduction']");
+    let welcomeObserver: MutationObserver | null = null;
+    if (welcome) {
+      welcomeObserver = new MutationObserver(() => {
+        if (document.contains(welcome)) return;
+        welcomeObserver?.disconnect();
+        welcomeObserver = null;
+        start();
+      });
+      welcomeObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+    } else {
+      start();
+    }
+
+    const triggers = later.map((panel) =>
+      ScrollTrigger.create({
+        trigger: panel,
+        start: "top 82%",
+        once: true,
+        onEnter: () => playRipple(panel),
+      })
     );
 
     return () => {
-      tween.kill();
+      welcomeObserver?.disconnect();
+      triggers.forEach((trigger) => trigger.kill());
       gsap.set(items, { clearProps: "all" });
     };
   }, []);
@@ -84,23 +146,36 @@ export default function AboutContent() {
     lenis?.start();
   }, [lenis]);
 
-  const layoutMap = useCallback(() => {
+  const paintFrame = useCallback(() => {
+    const frame = frameRef.current;
+    if (!frame || !isDesktop()) return;
+
+    const { scale, visualH, pageH, viewH } = mapMetricsRef.current;
+    const scrollY = lenis?.scroll ?? window.scrollY;
+    const maxScroll = Math.max(1, pageH - viewH);
+    const frameH = Math.max(24, viewH * scale);
+    const frameY = (scrollY / maxScroll) * Math.max(0, visualH - frameH);
+
+    frame.style.height = `${frameH}px`;
+    frame.style.transform = `translate3d(0, ${frameY}px, 0)`;
+    frame.style.opacity = "1";
+  }, [lenis]);
+  const paintFrameRef = useRef(paintFrame);
+  paintFrameRef.current = paintFrame;
+
+  const measureMap = useCallback(() => {
     const map = mapRef.current;
     const viewport = viewportRef.current;
     const canvas = canvasRef.current;
-    const frame = frameRef.current;
     const pages = pagesRef.current;
-    if (!map || !viewport || !canvas || !frame || !pages) return;
+    if (!map || !viewport || !canvas || !pages) return;
 
     if (!isDesktop()) {
       canvas.style.transform = "none";
       canvas.style.opacity = "0";
-      frame.style.opacity = "0";
+      if (frameRef.current) frameRef.current.style.opacity = "0";
       return;
     }
-
-    canvas.style.transform = "none";
-    canvas.style.width = `${window.innerWidth}px`;
 
     const cs = getComputedStyle(map);
     const availW =
@@ -111,45 +186,37 @@ export default function AboutContent() {
       map.clientHeight -
       parseFloat(cs.paddingTop) -
       parseFloat(cs.paddingBottom);
-    const pageW = canvas.offsetWidth || window.innerWidth;
-    const pageH = Math.max(pages.offsetHeight, canvas.offsetHeight, 1);
+    const pageW = window.innerWidth;
+    const pageH = Math.max(pages.offsetHeight, 1);
     const scale = Math.min(availW / pageW, availH / pageH);
     const visualW = pageW * scale;
     const visualH = pageH * scale;
+    const viewH = window.innerHeight;
 
+    canvas.style.width = `${pageW}px`;
     canvas.style.transformOrigin = "top left";
     canvas.style.transform = `scale(${scale})`;
     canvas.style.opacity = "1";
     viewport.style.width = `${visualW}px`;
     viewport.style.height = `${visualH}px`;
 
-    const viewH = window.innerHeight;
-    const scrollY = lenis?.scroll ?? window.scrollY;
-    const maxScroll = Math.max(1, pageH - viewH);
-    const frameH = Math.max(24, viewH * scale);
-    const frameY = (scrollY / maxScroll) * Math.max(0, visualH - frameH);
-
-    frame.style.transition = "none";
-    frame.style.height = `${frameH}px`;
-    frame.style.transform = `translate3d(0, ${frameY}px, 0)`;
-    frame.style.opacity = "1";
-  }, [lenis]);
+    mapMetricsRef.current = { scale, visualH, pageH, viewH };
+    paintFrameRef.current();
+  }, []);
 
   const syncActive = useCallback(() => {
     if (!isDesktop()) return;
 
     const line = window.innerHeight * 0.32;
-    const panels = pagesRef.current?.querySelectorAll<HTMLElement>(
-      "[data-about-panel]"
-    );
-    if (!panels?.length) return;
+    const panels = panelsRef.current;
+    if (!panels.length) return;
 
     let best = 0;
-    panels.forEach((el) => {
+    for (const el of panels) {
       if (el.getBoundingClientRect().top <= line) {
         best = Number(el.dataset.aboutPanel);
       }
-    });
+    }
 
     if (best !== activeRef.current) {
       activeRef.current = best;
@@ -158,26 +225,36 @@ export default function AboutContent() {
   }, []);
 
   const onScroll = useCallback(() => {
-    layoutMap();
+    paintFrame();
     syncActive();
-  }, [layoutMap, syncActive]);
+  }, [paintFrame, syncActive]);
 
   useEffect(() => {
+    const collectPanels = () => {
+      panelsRef.current = Array.from(
+        pagesRef.current?.querySelectorAll<HTMLElement>("[data-about-panel]") ??
+          []
+      );
+    };
+
     const onResize = () => {
-      layoutMap();
+      collectPanels();
+      measureMap();
       syncActive();
     };
 
-    lenis?.on("scroll", onScroll);
-    window.addEventListener("scroll", onScroll, { passive: true });
+    collectPanels();
+    if (lenis) {
+      lenis.on("scroll", onScroll);
+    } else {
+      window.addEventListener("scroll", onScroll, { passive: true });
+    }
     window.addEventListener("resize", onResize);
     onResize();
 
     const pages = pagesRef.current;
-    const canvas = canvasRef.current;
-    const ro = new ResizeObserver(() => layoutMap());
+    const ro = new ResizeObserver(() => measureMap());
     if (pages) ro.observe(pages);
-    if (canvas) ro.observe(canvas);
 
     return () => {
       lenis?.off("scroll", onScroll);
@@ -185,7 +262,7 @@ export default function AboutContent() {
       window.removeEventListener("resize", onResize);
       ro.disconnect();
     };
-  }, [layoutMap, lenis, onScroll, syncActive]);
+  }, [lenis, measureMap, onScroll, syncActive]);
 
   const goToPanel = useCallback(
     (index: number) => {
@@ -253,12 +330,12 @@ export default function AboutContent() {
 
 function AboutStage({ mini = false }: { mini?: boolean }) {
   const id = (value: string) => (mini ? undefined : value);
+  const ripple = mini ? undefined : styles.ripple;
 
   let index = 0;
   const introIndex = index++;
   const sideIndexes = SIDE_WORK.map(() => index++);
   const passionsIndex = index++;
-  const contactIndex = index++;
 
   return (
     <>
@@ -268,25 +345,28 @@ function AboutStage({ mini = false }: { mini?: boolean }) {
         aria-labelledby={id("about-intro")}
       >
         <div className={styles.introLayout}>
-          <div
-            className={`${styles.introCopy} ${mini ? "" : styles.introItem}`}
-          >
-            <p className={styles.kicker} id={id("about-intro")}>
+          <div className={styles.introCopy}>
+            <p
+              className={`${styles.kicker} ${ripple ?? ""}`}
+              id={id("about-intro")}
+            >
               {ABOUT_KICKERS.intro}
             </p>
-            <p className={styles.bio}>{ABOUT_BIO}</p>
-            <p className={styles.bio}>{ABOUT_DESIGN}</p>
+            <p className={`${styles.bio} ${ripple ?? ""}`}>
+              {ABOUT_BIO}
+            </p>
+            <p className={`${styles.bio} ${ripple ?? ""}`}>
+              {ABOUT_DESIGN}
+            </p>
           </div>
 
-          <div
-            className={`${styles.portrait} ${mini ? "" : styles.introItem}`}
-          >
+          <div className={`${styles.portrait} ${ripple ?? ""}`}>
             <Image
               src={ABOUT_PORTRAIT}
               alt={mini ? "" : "Ethan G.R. Lee"}
               fill
               priority={!mini}
-              sizes={mini ? "120px" : "(max-width: 1099px) 100vw, 28rem"}
+              sizes={mini ? "120px" : "(max-width: 1099px) 100vw, 36rem"}
               className={styles.portraitImage}
             />
           </div>
@@ -295,38 +375,38 @@ function AboutStage({ mini = false }: { mini?: boolean }) {
 
       {SIDE_WORK.map((item, i) => {
         const panelIndex = sideIndexes[i];
-        const headingId = i === 0 ? "about-side" : `about-side-${i}`;
         return (
           <section
             key={item.title}
             data-about-panel={mini ? undefined : panelIndex}
             className={styles.panel}
-            aria-labelledby={id(headingId)}
+            aria-labelledby={id("about-side")}
           >
             <div className={styles.panelInner}>
-              <h2 className={styles.sectionTitle} id={id(headingId)}>
-                {item.title}
-              </h2>
-
               <article className={styles.role}>
                 <div
-                  className={styles.roleMedia}
+                  className={`${styles.roleMedia} ${ripple ?? ""}`}
                   style={{ aspectRatio: item.imageAspect }}
                 >
                   <Image
                     src={item.image}
                     alt={mini ? "" : item.imageAlt}
                     fill
-                    sizes={mini ? "80px" : "(max-width: 1099px) 100vw, 50vw"}
+                    quality={mini ? 50 : 92}
+                    sizes={mini ? "80px" : "(max-width: 1099px) 26rem, 40rem"}
                     className={styles.roleImage}
                   />
                 </div>
                 <div className={styles.roleCopy}>
-                  <p className={styles.roleMeta}>
-                    {item.role}
-                    <span className={styles.roleDates}>{item.dates}</span>
+                  <p
+                    className={`${styles.kicker} ${ripple ?? ""}`}
+                    id={id("about-side")}
+                  >
+                    {item.title}
                   </p>
-                  <p className={styles.roleBody}>{item.body}</p>
+                  <p className={`${styles.bio} ${ripple ?? ""}`}>
+                    {item.body}
+                  </p>
                 </div>
               </article>
             </div>
@@ -339,46 +419,21 @@ function AboutStage({ mini = false }: { mini?: boolean }) {
         className={styles.panel}
         aria-labelledby={id("about-passions")}
       >
-        <div className={styles.panelInner}>
-          <h2 className={styles.sectionTitle} id={id("about-passions")}>
-            {CAFE_TITLE}
-          </h2>
-          <p className={styles.cafe}>{CAFE_DREAM}</p>
-        </div>
-      </section>
-
-      <section
-        data-about-panel={mini ? undefined : contactIndex}
-        className={styles.panel}
-        aria-labelledby={id("about-contact")}
-      >
-        <div className={styles.contactInner}>
-          <p className={styles.kicker} id={id("about-contact")}>
-            {ABOUT_KICKERS.contact}
-          </p>
-          <p className={styles.contactLine}>{CONTACT_LINE}</p>
-          <ul className={styles.links}>
-            {SOCIAL_LINKS.map(({ label, href }) => (
-              <li key={label}>
-                {mini ? (
-                  <span className={styles.link}>{label}</span>
-                ) : (
-                  <a
-                    href={href}
-                    className={styles.link}
-                    target={href.startsWith("mailto:") ? undefined : "_blank"}
-                    rel={
-                      href.startsWith("mailto:")
-                        ? undefined
-                        : "noopener noreferrer"
-                    }
-                  >
-                    {label}
-                  </a>
-                )}
-              </li>
-            ))}
-          </ul>
+        <div className={styles.cafeLayout}>
+          <div className={styles.cafeCopy}>
+            <h2
+              className={`${styles.kicker} ${ripple ?? ""}`}
+              id={id("about-passions")}
+            >
+              {CAFE_TITLE}
+            </h2>
+            <p className={`${styles.cafe} ${ripple ?? ""}`}>
+              {CAFE_DREAM}
+            </p>
+          </div>
+          <div className={ripple}>
+            <BeliWidget mini={mini} />
+          </div>
         </div>
       </section>
     </>

@@ -1,8 +1,69 @@
+import type { CardFocus } from "@/lib/drinks";
+
 export type ProjectCategory =
   | "seasonal"
   | "specialty"
   | "single-origin"
   | "sides";
+
+/**
+ * A screenshot exactly as it was exported — shown flat, never tilted or
+ * cropped. Intrinsic pixels come along so the strip can hold the aspect ratio.
+ */
+export type ProjectScreen = {
+  src: string;
+  width: number;
+  height: number;
+  /**
+   * Trim against the other screenshots on the shelf, where 1 is the default
+   * fit. Exports frame their device differently — a single phone sits tall
+   * inside its canvas, Timing is a flat board rather than a device — so
+   * this is what makes every project read at one scale, tray to tray.
+   */
+  trayFit?: number;
+};
+
+export type DeviceKind = "laptop" | "phone" | "board";
+
+/** Screen well as a percentage of the device PNG. */
+export type PrototypeScreen = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+};
+
+export type ProjectPrototype = {
+  /** Screen recording only — no device chrome. */
+  src: string;
+  /** Override when the PNG is not a standard laptop / phone / board. */
+  screen?: PrototypeScreen;
+};
+
+/**
+ * Inner LCD of the shared Apple mockups. Laptop measured on Unbounded;
+ * phone measured on the flat iPhone 15 stills.
+ */
+export const DEVICE_SCREEN_PRESETS: Record<DeviceKind, PrototypeScreen> = {
+  laptop: { x: 10.16, y: 5.78, w: 79.72, h: 82.14 },
+  phone: { x: 6.2, y: 2.4, w: 87.6, h: 95.4 },
+  board: { x: 0, y: 0, w: 100, h: 100 },
+};
+
+const DEVICE_WELL_RADIUS: Record<DeviceKind, string> = {
+  laptop: "1.35%",
+  phone: "12.5%",
+  board: "0.35%",
+};
+
+export function getPrototypeWell(project: Pick<Project, "device" | "prototype">) {
+  if (!project.prototype?.src) return null;
+  const device = project.device ?? "laptop";
+  return {
+    screen: project.prototype.screen ?? DEVICE_SCREEN_PRESETS[device],
+    radius: DEVICE_WELL_RADIUS[device],
+  };
+}
 
 export type Project = {
   slug: string;
@@ -16,6 +77,18 @@ export type Project = {
   summary: string;
   /** Hero / drink image on the works serving + case study cover */
   cover: string;
+  /**
+   * What the Work strip shows: the screenshot(s), flat, resting on one shared
+   * tray shape drawn in CSS (see components/gallery/TrayStage.tsx).
+   */
+  screens: ProjectScreen[];
+  /** Device chrome in the tray still — drives the lightbox video well. */
+  device?: DeviceKind;
+  /**
+   * Looping screen recording punched into the device after the lightbox
+   * split. Omit until the file exists; the still stays up.
+   */
+  prototype?: ProjectPrototype;
   /** Optional hero width/height ratio (e.g. "1024 / 767") — defaults to Scope phones */
   heroAspectRatio?: string;
   /** Scale the menu hero relative to the default phone slot (1 = default) */
@@ -45,6 +118,8 @@ export type Project = {
   cardKind?: CardKind;
   /** Smaller notes so a long tasting line stays on one row */
   notesCompact?: boolean;
+  /** Tight crop for the work strip card (and lightbox thumbs) */
+  cardFocus?: CardFocus;
 };
 
 export type CardKind =
@@ -99,6 +174,11 @@ export const projects: Project[] = [
     summary:
       "A placeholder case study. Replace with a short, quiet summary of the problem, your role, and the outcome — two or three sentences at most.",
     cover: "/images/projects/unbounded/hero-2x.png",
+    device: "laptop",
+    prototype: { src: "/videos/projects/unbounded/prototype.mp4" },
+    screens: [
+      { src: "/images/projects/unbounded/hero-2x.png", width: 2066, height: 1316 },
+    ],
     heroAspectRatio: "2066 / 1316",
     images: [
       "/images/projects/unbounded/hero-2x.png",
@@ -119,9 +199,18 @@ export const projects: Project[] = [
       "Resell, built with Cornell AppDev, brings secondhand shopping to Cornell students in one dedicated marketplace. I reworked the core experience end-to-end — from event-specific spaces that surface listings for moments like Homecoming and Halloween, to the Lucid release, which introduced fluid animations and a glassy new visual layer across the app.",
     summary:
       "A placeholder case study. Replace with a short, quiet summary of the problem, your role, and the outcome — two or three sentences at most.",
-    cover: "/images/projects/resell/hero-clean.png",
+    cover: "/images/projects/resell/hero-flat.png",
+    device: "phone",
+    screens: [
+      {
+        src: "/images/projects/resell/hero-flat.png",
+        width: 507,
+        height: 1012,
+        trayFit: 0.86,
+      },
+    ],
     images: [
-      "/images/projects/resell/hero-clean.png",
+      "/images/projects/resell/hero-flat.png",
     ],
   },
   {
@@ -139,10 +228,22 @@ export const projects: Project[] = [
       "A 12-week internship on a team of product designers, where I led the redesign of Timing's entire design system. I rebuilt it around reusable components, giving the team a systemized foundation that makes designing new features faster and more consistent going forward.",
     summary:
       "A placeholder case study. Replace with a short, quiet summary of the problem, your role, and the outcome — two or three sentences at most.",
-    cover: "/images/projects/timing/hero-2x.png",
-    heroAspectRatio: "2072 / 1172",
+    cover: "/images/projects/timing/hero.png",
+    device: "board",
+    screens: [
+      // A flat board rather than a device — pulled in a little so it does not
+      // out-weigh the laptops and phones it shares the shelf with. The export
+      // already carries Figma's frame outline, so the board reads as a frame.
+      {
+        src: "/images/projects/timing/hero.png",
+        width: 736,
+        height: 445,
+        trayFit: 0.98,
+      },
+    ],
+    heroAspectRatio: "736 / 445",
     images: [
-      "/images/projects/timing/hero-2x.png",
+      "/images/projects/timing/hero.png",
     ],
   },
   {
@@ -162,10 +263,15 @@ export const projects: Project[] = [
       "IMA (Internal Members Archive) gives every Hack4Impact chapter nationwide a shared home for past projects and the members behind them, making it easy to look back and reach out. Working alongside three designers on my team and Hack4Impact's national design members, I helped design the product from the ground up.",
     summary:
       "A placeholder case study. Replace with a short, quiet summary of the problem, your role, and the outcome — two or three sentences at most.",
-    cover: "/images/projects/hack4impact/hero-2x.png",
-    heroAspectRatio: "2066 / 1266",
+    cover: "/images/projects/hack4impact/hero-flat.png",
+    device: "laptop",
+    prototype: { src: "/videos/projects/hack4impact/prototype.mp4" },
+    screens: [
+      { src: "/images/projects/hack4impact/hero-flat.png", width: 1003, height: 619 },
+    ],
+    heroAspectRatio: "1003 / 619",
     images: [
-      "/images/projects/hack4impact/hero-2x.png",
+      "/images/projects/hack4impact/hero-flat.png",
     ],
   },
   {
@@ -184,9 +290,18 @@ export const projects: Project[] = [
       "Cornell students have few ways to explore outside their own major — packed schedules rule out extra classes, and clubs stay nearly impossible to join. Studio lets students teach each other, turning personal passions into peer-led classes and the connections that follow.",
     summary:
       "A placeholder case study. Replace with a short, quiet summary of the problem, your role, and the outcome — two or three sentences at most.",
-    cover: "/images/projects/studio/hero-clean.png",
+    cover: "/images/projects/studio/hero-flat.png",
+    device: "phone",
+    screens: [
+      {
+        src: "/images/projects/studio/hero-flat.png",
+        width: 476,
+        height: 958,
+        trayFit: 0.86,
+      },
+    ],
     images: [
-      "/images/projects/studio/hero-clean.png",
+      "/images/projects/studio/hero-flat.png",
     ],
   },
   {
@@ -205,9 +320,18 @@ export const projects: Project[] = [
       "Cornell students were tuning out campus news entirely, buried in cluttered inboxes and scattered across broken apps. Scope consolidates it all into one feed, built to fit into the pockets of time students already have.",
     summary:
       "A news outlet product for Cornell students — redesigning how campus journalism is discovered, read, and saved.",
-    cover: "/images/projects/scope/hero-clean.png",
+    cover: "/images/projects/scope/hero-flat.png",
+    device: "phone",
+    screens: [
+      {
+        src: "/images/projects/scope/hero-flat.png",
+        width: 508,
+        height: 1021,
+        trayFit: 0.86,
+      },
+    ],
     images: [
-      "/images/projects/scope/hero-clean.png",
+      "/images/projects/scope/hero-flat.png",
       "/images/projects/scope/cover.jpg",
     ],
   },
@@ -229,34 +353,13 @@ export const projects: Project[] = [
       "Intro to Digital Product Design is a semester-long course run through Cornell AppDev, teaching 30 students Figma and product thinking, building toward professional-level case studies they can carry into internships and resumes. I helped modernize the curriculum for current design standards: introducing AI into the prototyping workflow, and restructuring critique groups into tighter, family-style pods so students build closer relationships with their TAs and peers.",
     summary:
       "A placeholder case study. Replace with a short, quiet summary of the problem, your role, and the outcome — two or three sentences at most.",
-    cover: "/images/projects/dpd/hero-clean.png",
-    heroAspectRatio: "941 / 1048",
-    images: [
-      "/images/projects/dpd/hero-clean.png",
+    cover: "/images/projects/dpd/IMG_1017.jpg",
+    screens: [
+      { src: "/images/projects/dpd/IMG_1017.jpg", width: 4096, height: 3478 },
     ],
-  },
-  {
-    slug: "cuxd-eboard",
-    title: "CUxD Eboard",
-    cardTitleCompact: true,
-    dateRange: "8.25 - Curr.",
-    category: "sides",
-    year: "2025",
-    role: "External Operations Lead",
-    client: "CUxD",
-    notes: "Community-Wide, Nationwide, High-Scale",
-    notesCompact: true,
-    cardKind: "leadership",
-    profile: "",
-    story:
-      "As External Operations Lead for CUxD, I planned events for Cornell's entire design community: 10+ workshops, panels, and socials, plus our nationwide annual design-a-thon. Coordinating this meant reaching out to 30+ judges and speakers and drawing participation from 50+ universities and design organizations.",
-    summary:
-      "A placeholder case study. Replace with a short, quiet summary of the problem, your role, and the outcome — two or three sentences at most.",
-    cover: "/images/projects/cuxd/hero-clean.png",
-    heroAspectRatio: "1048 / 1025",
-    heroScale: 1.16,
+    heroAspectRatio: "4096 / 3478",
     images: [
-      "/images/projects/cuxd/hero-clean.png",
+      "/images/projects/dpd/IMG_1017.jpg",
     ],
   },
 ];

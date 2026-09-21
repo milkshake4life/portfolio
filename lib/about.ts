@@ -8,7 +8,7 @@ export const SOCIAL_LINKS = [
   { label: "Email", href: "mailto:egl54@cornell.edu" },
   {
     label: "Resume",
-    href: "https://drive.google.com/file/d/1BAYy1Ow5kHtrWHgdqD8c3AFtrXNznKix/view?usp=drive_link",
+    href: "https://drive.google.com/file/d/193wLLUXYygUWtv1JtRzn7qwhrIEn4XGr/view?usp=sharing",
   },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/ethangrlee/" },
 ] as const;

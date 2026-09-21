@@ -26,7 +26,7 @@ export default function BeliWidget({ mini = false }: { mini?: boolean }) {
       aria-label={mini ? undefined : `${BELI_CATEGORY} ranking`}
     >
       <header className={styles.chrome}>
-        <p className={styles.listsLabel}>Ethan's Beli List.</p>
+        <p className={styles.listsLabel}>{"Ethan's Beli List."}</p>
         <p className={styles.category}>{BELI_CATEGORY}</p>
         <div className={styles.tabs} role={mini ? undefined : "tablist"}>
           <button

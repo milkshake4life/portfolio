@@ -1,9 +1,13 @@
 .about {
   --about-map-col: min(11.25rem, 16vw);
+  --intro-copy: 26rem;
+  --portrait-size: calc(var(--photo-portrait) + 1rem);
   --about-column: min(
     100%,
-    calc(22.5rem + 4rem + var(--photo-portrait))
+    calc(var(--intro-copy) + 4.5rem + var(--photo-portrait) + 4rem)
   );
+  --beli-width: calc(var(--photo-portrait) + 2rem);
+  --beli-height: auto;
 
   padding: 0;
 }
@@ -30,6 +34,7 @@
   transform-origin: top left;
   opacity: 0;
   pointer-events: none;
+  contain: layout paint;
 }
 
 .mapFrame {
@@ -41,6 +46,7 @@
   pointer-events: none;
   z-index: 2;
   opacity: 0;
+  will-change: transform;
 }
 
 .mapHits {
@@ -60,19 +66,21 @@
 }
 
 .kicker {
-  font-size: var(--text-micro);
-  font-weight: 500;
-  letter-spacing: var(--tracking-wide);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 0.85rem;
+  color: var(--text);
+  margin-bottom: 1.35rem;
+}
+
+.ripple {
+  opacity: 0;
 }
 
 .bio,
-.roleBody,
-.cafe,
-.contactLine {
-  font-size: 0.9375rem;
+.cafe {
+  font-size: 1.0625rem;
   font-weight: 400;
   line-height: 1.58;
   letter-spacing: -0.01em;
@@ -95,28 +103,13 @@
   width: min(100%, var(--about-column));
 }
 
-.sectionTitle {
-  font-size: clamp(1.5rem, 2.8vw, 2.15rem);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
-  color: var(--text);
-  margin-bottom: clamp(1.35rem, 3.5vh, 2.15rem);
-}
-
 /* ---- 1. Intro ---- */
 .introLayout {
-  --portrait-size: var(--photo-portrait);
-
   display: grid;
-  grid-template-columns: minmax(0, 22.5rem) var(--portrait-size);
+  grid-template-columns: minmax(0, var(--intro-copy)) 1fr;
   align-items: start;
-  gap: clamp(2.5rem, 5vw, 4rem);
+  gap: clamp(2.5rem, 5vw, 4.5rem);
   width: var(--about-column);
-}
-
-.introItem {
-  will-change: auto;
 }
 
 .introCopy {
@@ -133,6 +126,7 @@
   position: relative;
   width: var(--portrait-size);
   aspect-ratio: 1 / 1;
+  justify-self: end;
 }
 
 .portraitImage {
@@ -140,93 +134,44 @@
   object-position: center;
 }
 
-/* ---- 2–3. Side work panels ---- */
+/* ---- 2. Side work ---- */
 .role {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.9fr);
-  gap: clamp(1.75rem, 3.5vw, 3rem);
+  grid-template-columns: auto minmax(0, var(--intro-copy));
+  gap: clamp(2.75rem, 5vw, 4.5rem);
   align-items: start;
-}
-
-.panel:nth-of-type(3) .role {
-  grid-template-columns: minmax(16rem, 0.9fr) minmax(0, 1.35fr);
-}
-
-.panel:nth-of-type(3) .roleMedia {
-  order: 2;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
 }
 
 .roleMedia {
   position: relative;
-  width: min(100%, 52vh, 34rem);
-  justify-self: start;
+  width: min(48vh, 32rem);
 }
 
-.panel:nth-of-type(3) .roleMedia {
-  justify-self: end;
+.roleCopy {
+  min-width: 0;
 }
 
 .roleImage {
   object-fit: cover;
-  object-position: left center;
+  object-position: center top;
 }
 
-.roleMeta {
-  font-size: var(--text-small);
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  color: var(--text-muted);
-  margin-bottom: 0.85rem;
+/* ---- 3. Passions ---- */
+.cafeLayout {
+  display: grid;
+  grid-template-columns: minmax(0, var(--intro-copy)) var(--beli-width);
+  align-items: start;
+  gap: clamp(2.5rem, 5vw, 4.5rem);
+  width: min(100%, calc(var(--intro-copy) + 4.5rem + var(--beli-width)));
 }
 
-.roleDates {
-  display: block;
-  margin-top: 0.15rem;
-  font-size: var(--text-micro);
-  letter-spacing: 0.04em;
-  color: var(--text-faint);
-}
-
-.roleBody {
-  color: var(--text-muted);
-}
-
-/* ---- 4. Passions ---- */
-.cafe {
-  color: var(--text-muted);
-  max-width: 36rem;
-}
-
-/* ---- 5. Contact ---- */
-.contactInner {
-  width: min(100%, var(--about-column));
-  max-width: var(--about-column);
-}
-
-.contactLine {
-  font-size: clamp(1.5rem, 3vw, 2.25rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  margin-bottom: 2rem;
-}
-
-.links {
+.cafeCopy {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-}
-
-.link {
-  font-size: 0.9375rem;
-  font-weight: 400;
-  line-height: 1.5;
-  color: var(--text-muted);
-  transition: color var(--dur-fast) var(--ease-out-expo);
-}
-
-.link:hover {
-  color: var(--text);
+  min-height: var(--beli-height);
 }
 
 @media (min-width: 1100px) {
@@ -252,19 +197,14 @@
     pointer-events: auto;
   }
 
-  .panelInner,
-  .contactInner {
+  .panelInner {
     margin-left: auto;
     margin-right: auto;
   }
 
   .panel:has(.role) .panelInner {
-    width: min(
-      calc(var(--about-column) + clamp(4rem, 10vw, 10rem)),
-      calc(100% - ((100% - var(--about-column)) / 2) - var(--gutter))
-    );
-    margin-left: max(0px, calc((100% - var(--about-column)) / 2));
-    margin-right: auto;
+    width: fit-content;
+    max-width: calc(100% - var(--gutter) * 2);
   }
 }
 
@@ -297,33 +237,37 @@
   }
 
   .introLayout,
-  .panelInner,
-  .contactInner {
+  .panelInner {
     margin-left: auto;
     margin-right: auto;
-    max-width: 22.5rem;
+    max-width: 26rem;
   }
 
-  .introLayout {
+  .cafeLayout {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 26rem;
+  }
+
+  .introLayout,
+  .cafeLayout {
     --portrait-size: min(var(--photo-portrait), 100%);
 
     grid-template-columns: 1fr;
     gap: clamp(2.5rem, 6vh, 3.5rem);
-    max-width: 22.5rem;
   }
 
-  .introCopy {
+  .introLayout {
+    max-width: 26rem;
+  }
+
+  .introCopy,
+  .cafeCopy {
     min-height: 0;
   }
 
-  .role,
-  .panel:nth-of-type(3) .role {
+  .role {
     grid-template-columns: 1fr;
-  }
-
-  .panel:nth-of-type(3) .roleMedia {
-    order: 0;
-    justify-self: start;
   }
 
   .roleMedia {
@@ -332,7 +276,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .introItem {
+  .ripple {
     opacity: 1;
   }
 }

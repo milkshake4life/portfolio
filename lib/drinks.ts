@@ -68,7 +68,7 @@ export const drinks: Drink[] = [
     name: "Iced Long Black",
     category: "coffee",
     notes: "Cold brew over ice, late sun",
-    image: "/images/drinks/drink-01.jpg",
+    image: "/images/drinks/coffee-1.png",
     origin: "Single origin · Ethiopia, Harrar",
     method: "Long black · over ice · no sugar",
     entry:
@@ -82,7 +82,7 @@ export const drinks: Drink[] = [
     name: "Pair on a Tray",
     category: "coffee",
     notes: "Iced matcha and shaken espresso, side by side",
-    image: "/images/drinks/drink-03.jpg",
+    image: "/images/drinks/coffee-2.png",
     origin: "Matcha & espresso · side by side",
     method: "Iced · shaken · unsweetened",
     entry:
@@ -96,7 +96,7 @@ export const drinks: Drink[] = [
     name: "Two Flat Whites",
     category: "coffee",
     notes: "Flat white — rosetta, for two",
-    image: "/images/drinks/drink-06.jpg",
+    image: "/images/drinks/coffee-3.png",
     origin: "Flat white · a rosetta, for two",
     method: "Double ristretto · steamed milk",
     entry:
@@ -104,13 +104,18 @@ export const drinks: Drink[] = [
     place: "Home, slow start",
     date: "2026.04",
     occasion: "A shared morning",
+    cardFocus: {
+      x: "70%",
+      y: "58%",
+      zoom: 1.18,
+    },
   },
   {
     id: "drink-09",
     name: "Two Einspanners",
     category: "tea",
     notes: "Matcha and strawberry, da-mo",
-    image: "/images/drinks/drink-09.jpg",
+    image: "/images/drinks/IMG_7060.jpg",
     origin: "Matcha & strawberry einspanner · da-mo",
     method: "Iced · cream foam",
     entry:
@@ -119,9 +124,9 @@ export const drinks: Drink[] = [
     date: "2026.09",
     occasion: "The first one",
     cardFocus: {
-      x: "56%",
-      y: "72%",
-      zoom: 1.35,
+      x: "58%",
+      y: "68%",
+      zoom: 1.28,
     },
   },
 ];

@@ -22,7 +22,7 @@ export const SIDE_WORK = [
     imageAspect: "3 / 4",
     imageAlt:
       "Ethan and Selena in front of the Intro to Digital Product Design lecture slide",
-    body: "Outside of design work, I teach a class called Introduction to Digital Product Design. I manage a team of 8 TAs and have taught over 40 students the Double Diamond design process, covering topics like UXR, affinity mapping, wireframing, and Figma. Recently, I've also modernized the curriculum by incorporating AI into their workflow.",
+    body: "Outside of design work, I teach a class called Introduction to Digital Product Design. I manage a team of 10 TAs and have taught over 30 students the Double Diamond design process, covering topics like UXR, affinity mapping, wireframing, and Figma. Recently, I've also modernized the curriculum by incorporating AI into their workflow.",
   },
 ] as const;
 

@@ -148,6 +148,7 @@
 .roleMedia {
   position: relative;
   width: min(48vh, 32rem);
+  overflow: hidden;
 }
 
 .roleCopy {
@@ -155,6 +156,11 @@
 }
 
 .roleImage {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: center top;
 }

@@ -392,8 +392,9 @@ function AboutStage({ mini = false }: { mini?: boolean }) {
                     src={item.image}
                     alt={mini ? "" : item.imageAlt}
                     fill
-                    quality={mini ? 50 : 92}
-                    sizes={mini ? "80px" : "(max-width: 1099px) 26rem, 40rem"}
+                    priority={!mini}
+                    quality={mini ? 50 : 80}
+                    sizes={mini ? "80px" : "(max-width: 1099px) 22.5rem, 32rem"}
                     className={styles.roleImage}
                   />
                 </div>

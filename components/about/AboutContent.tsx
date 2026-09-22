@@ -71,7 +71,7 @@ export default function AboutContent() {
       return;
     }
 
-    gsap.set(items, { autoAlpha: 0, y: RIPPLE.rise });
+    gsap.set(items, { opacity: 0, y: RIPPLE.rise });
 
     const playRipple = (container: HTMLElement) => {
       const group = Array.from(
@@ -86,9 +86,9 @@ export default function AboutContent() {
 
       gsap.fromTo(
         group,
-        { autoAlpha: 0, y: RIPPLE.rise, willChange: "transform, opacity" },
+        { opacity: 0, y: RIPPLE.rise, willChange: "transform, opacity" },
         {
-          autoAlpha: 1,
+          opacity: 1,
           y: 0,
           duration: RIPPLE.duration,
           ease: RIPPLE.ease,
@@ -384,19 +384,18 @@ function AboutStage({ mini = false }: { mini?: boolean }) {
           >
             <div className={styles.panelInner}>
               <article className={styles.role}>
-                <div
-                  className={`${styles.roleMedia} ${ripple ?? ""}`}
-                  style={{ aspectRatio: item.imageAspect }}
-                >
-                  <Image
-                    src={item.image}
-                    alt={mini ? "" : item.imageAlt}
-                    fill
-                    priority={!mini}
-                    quality={mini ? 50 : 80}
-                    sizes={mini ? "80px" : "(max-width: 1099px) 22.5rem, 32rem"}
-                    className={styles.roleImage}
-                  />
+                <div className={ripple}>
+                  <div
+                    className={styles.roleMedia}
+                    style={{ aspectRatio: item.imageAspect }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={item.image}
+                      alt={mini ? "" : item.imageAlt}
+                      className={styles.roleImage}
+                    />
+                  </div>
                 </div>
                 <div className={styles.roleCopy}>
                   <p

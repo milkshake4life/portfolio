@@ -27,7 +27,7 @@ export const SIDE_WORK = [
 ] as const;
 
 export const CAFE_DREAM =
-  "My dream is to start a cafe. I love exploring coffee and tea, and cafe hopping is a regular hobby of mine. Just as I linger in my favorite cafes, I hope to create a place of my own that provides satisfying user experiences outside of my designs. My Beli consists of just the Coffee and Tea section. Check out my list!";
+  "My dream is to start a cafe. I love exploring coffee and tea, and cafe hopping is a regular hobby of mine. Just as I linger in my favorite cafes, I hope to create a place of my own that provides satisfying user experiences outside of my designs. My Beli consists of just the Coffee and Tea section. Check out my list, or leave me a spot in Want to Try.";
 
 export const CAFE_TITLE = "Cafe dreams";
 

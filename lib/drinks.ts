@@ -64,30 +64,16 @@ export function cardFocusNumbers(focus?: CardFocus) {
  */
 export const drinks: Drink[] = [
   {
-    id: "drink-01",
-    name: "Iced Long Black",
-    category: "coffee",
-    notes: "Cold brew over ice, late sun",
-    image: "/images/drinks/coffee-1.png",
-    origin: "Single origin · Ethiopia, Harrar",
-    method: "Long black · over ice · no sugar",
-    entry:
-      "Two shots pulled long and poured over a full glass of ice. Drank it on the balcony before the sun cleared the rooftops — bitter, bright, and gone far too fast.",
-    place: "Home, late sun",
-    date: "2026.01",
-    occasion: "The first quiet hour",
-  },
-  {
     id: "drink-03",
     name: "Pair on a Tray",
     category: "coffee",
-    notes: "Iced matcha and shaken espresso, side by side",
+    notes: "Iced matcha and shaken espresso",
     image: "/images/drinks/coffee-2.png",
-    origin: "Matcha & espresso · side by side",
+    origin: "Matcha & espresso",
     method: "Iced · shaken · unsweetened",
     entry:
-      "Couldn't decide, so I made both. Iced matcha and a shaken espresso lined up on the same tray, sweating in the afternoon light. Drank the espresso first.",
-    place: "Kitchen counter, north light",
+      "Couldn't decide, so I ordered both. Iced matcha and a shaken espresso lined up on the same tray, sweating in the afternoon light. Drank the espresso first.",
+    place: "Local cafe, afternoon",
     date: "2026.02",
     occasion: "An indecisive afternoon",
   },
@@ -95,15 +81,15 @@ export const drinks: Drink[] = [
     id: "drink-06",
     name: "Two Flat Whites",
     category: "coffee",
-    notes: "Flat white — rosetta, for two",
+    notes: "Flat white, rosetta, for two",
     image: "/images/drinks/coffee-3.png",
     origin: "Flat white · a rosetta, for two",
     method: "Double ristretto · steamed milk",
     entry:
-      "Pulled two and poured a rosetta into each — one for me, one for whoever was awake. The foam held just long enough to admire before the first sip ruined it.",
-    place: "Home, slow start",
+      "Catching up with a high school friend over two flat whites. I took the photo because I really liked the latte art: a clean rosetta on both cups.",
+    place: "Local cafe, slow morning",
     date: "2026.04",
-    occasion: "A shared morning",
+    occasion: "Catching up",
     cardFocus: {
       x: "70%",
       y: "58%",
@@ -119,7 +105,7 @@ export const drinks: Drink[] = [
     origin: "Matcha & strawberry einspanner · da-mo",
     method: "Iced · cream foam",
     entry:
-      "The first specialty cafe I ever walked into — still second-favorite of all time. I always go back for the strawberry einspanner: their take on strawberry milk, floral without tipping sweet, dead-on instead of flat.",
+      "The first specialty cafe I ever walked into, still second-favorite of all time. I always go back for the strawberry einspanner: their take on strawberry milk, floral without tipping sweet, dead-on instead of flat.",
     place: "da-mo",
     date: "2026.09",
     occasion: "The first one",
@@ -128,5 +114,19 @@ export const drinks: Drink[] = [
       y: "68%",
       zoom: 1.28,
     },
+  },
+  {
+    id: "drink-01",
+    name: "Iced Long Black",
+    category: "coffee",
+    notes: "Cold brew over ice, late sun",
+    image: "/images/drinks/coffee-1.png",
+    origin: "Single origin · Ethiopia, Harrar",
+    method: "Long black · over ice · no sugar",
+    entry:
+      "Two shots pulled long and poured over a full glass of ice. Drank it on the balcony before the sun cleared the rooftops. Bitter, bright, and gone far too fast.",
+    place: "Home, late sun",
+    date: "2026.01",
+    occasion: "The first quiet hour",
   },
 ];

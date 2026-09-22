@@ -19,14 +19,12 @@ import {
 import styles from "./BeliWidget.module.css";
 
 const MINI_VISIBLE = 4;
-const RECORDED_MS = 2200;
 
-type RecommendPhase = "idle" | "compose" | "recorded";
+type RecommendPhase = "idle" | "compose";
 
-function RecommendRow() {
+function RecommendComposer({ onRecord }: { onRecord: (name: string) => void }) {
   const [phase, setPhase] = useState<RecommendPhase>("idle");
   const [value, setValue] = useState("");
-  const [recorded, setRecorded] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const fieldId = useId();
 
@@ -35,22 +33,13 @@ function RecommendRow() {
     inputRef.current?.focus();
   }, [phase]);
 
-  useEffect(() => {
-    if (phase !== "recorded") return;
-    const timer = window.setTimeout(() => {
-      setPhase("idle");
-      setValue("");
-      setRecorded("");
-    }, RECORDED_MS);
-    return () => window.clearTimeout(timer);
-  }, [phase]);
-
   const submit = (event: FormEvent) => {
     event.preventDefault();
     const next = value.trim();
     if (!next) return;
-    setRecorded(next);
-    setPhase("recorded");
+    onRecord(next);
+    setValue("");
+    setPhase("idle");
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -61,35 +50,12 @@ function RecommendRow() {
     }
   };
 
-  if (phase === "recorded") {
-    return (
-      <li className={`${styles.row} ${styles.recommendRow}`} aria-live="polite">
-        <div className={`${styles.rowMain} ${styles.recommendPop}`}>
-          <p className={styles.name}>{recorded}</p>
-          <p className={styles.meta}>Recommendation recorded</p>
-        </div>
-        <span className={`${styles.score} ${styles.high} ${styles.checkPop}`}>
-          <svg viewBox="0 0 16 16" aria-hidden="true">
-            <path
-              d="M3.2 8.4 6.3 11.4 12.8 4.6"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.7"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </span>
-      </li>
-    );
-  }
-
   if (phase === "compose") {
     return (
       <li className={`${styles.row} ${styles.recommendRow}`}>
         <form className={styles.recommendForm} onSubmit={submit}>
           <label className={styles.recommendLabel} htmlFor={fieldId}>
-            Recommend a spot
+            Got a place I should try?
           </label>
           <div className={styles.recommendField}>
             <input
@@ -123,7 +89,7 @@ function RecommendRow() {
         className={styles.recommendButton}
         onClick={() => setPhase("compose")}
       >
-        Give Recommendations
+        Give me a spot
         <span className={styles.recommendPlus} aria-hidden="true">
           +
         </span>
@@ -132,8 +98,32 @@ function RecommendRow() {
   );
 }
 
+function RecordedRow({ name }: { name: string }) {
+  return (
+    <li className={`${styles.row} ${styles.recommendRow}`} aria-live="polite">
+      <div className={`${styles.rowMain} ${styles.recommendPop}`}>
+        <p className={styles.name}>{name}</p>
+        <p className={styles.meta}>{"I'll check it out soon!"}</p>
+      </div>
+      <span className={`${styles.score} ${styles.high} ${styles.checkPop}`}>
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <path
+            d="M3.2 8.4 6.3 11.4 12.8 4.6"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+    </li>
+  );
+}
+
 export default function BeliWidget({ mini = false }: { mini?: boolean }) {
   const [tab, setTab] = useState<BeliTab>("been");
+  const [recommendations, setRecommendations] = useState<string[]>([]);
   const active = mini ? "been" : tab;
   const want = BELI_WANT_TO_TRY;
   const been = mini ? BELI_PLACES.slice(0, MINI_VISIBLE) : BELI_PLACES;
@@ -203,7 +193,14 @@ export default function BeliWidget({ mini = false }: { mini?: boolean }) {
             ))
           : (
               <>
-                <RecommendRow />
+                <RecommendComposer
+                  onRecord={(name) =>
+                    setRecommendations((current) => [name, ...current])
+                  }
+                />
+                {recommendations.map((name, index) => (
+                  <RecordedRow key={`${name}-${index}`} name={name} />
+                ))}
                 {want.map((place) => (
                   <li key={place.name} className={styles.row}>
                     <div className={styles.rowMain}>

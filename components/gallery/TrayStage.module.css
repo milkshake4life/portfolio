@@ -1,0 +1,152 @@
+/* Flat screenshot standing in a line-drawn tray. See TrayStage.tsx. */
+
+.stage {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Room a screenshot may take, and the gap between screenshots sharing one
+     tray. Container units keep the proportions identical at every size; each
+     bound is read against both axes so the same composition holds in a strip
+     card (a tall frame) and in the fullscreen view (a wide one).
+     The width bound is the tray floor: a screenshot stands on the tray, never
+     over its rims. */
+  --room-w: min(78cqw, 104cqh);
+  --room-h: min(63cqw, 62cqh);
+  --seam: 4cqw;
+  --tray-line: #dcdcdc;
+}
+
+/* Shelf stays low in the tile so devices of different heights share one
+   floor. The strip then lifts the whole tile (tray + caption) together. */
+.tray {
+  position: absolute;
+  left: 4cqw;
+  right: 4cqw;
+  bottom: 8cqh;
+  aspect-ratio: 420 / 120;
+}
+
+.lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.lines path {
+  fill: none;
+  stroke: var(--tray-line);
+  stroke-width: 1;
+  /* A hairline at every size, rather than a line that thickens with the tray */
+  vector-effect: non-scaling-stroke;
+}
+
+/* Filled with the page's own background, which is what occludes the base of
+   the screenshot standing behind it. */
+.front path {
+  fill: var(--bg);
+}
+
+/* Bases rest on the inner floor of the tray. Sized to its contents: left at
+   50% with no width of its own, the row would shrink to fit the half-tray
+   left of that edge and quietly squash every screenshot down with it. */
+.screens {
+  position: absolute;
+  left: 50%;
+  bottom: 32%;
+  width: max-content;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-end;
+  gap: var(--seam);
+}
+
+/* Scaled to fit the room, never cropped: whichever of width or height runs
+   out first decides the size, and the intrinsic ratio does the rest. A wide
+   laptop export therefore fills the tray floor while a phone stands tall
+   and narrow, the way the objects themselves would.
+
+   --fit then trims each export against the others, because how much of a PNG
+   the device actually occupies differs from shot to shot. See lib/projects.ts. */
+.device {
+  position: relative;
+  width: calc(
+    min(
+      (var(--room-w) - var(--seam) * (var(--slots) - 1)) / var(--slots),
+      var(--room-h) * var(--ratio)
+    ) * var(--fit, 1)
+  );
+}
+
+.screen {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Punched into the LCD after the lightbox split. Hidden until the morph
+   finishes and the first frame is ready, so a missing file just stays still. */
+.prototype {
+  position: absolute;
+  top: var(--well-y);
+  left: var(--well-x);
+  width: var(--well-w);
+  height: var(--well-h);
+  object-fit: cover;
+  pointer-events: none;
+  border-radius: var(--well-radius);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.prototype[data-active][data-ready] {
+  opacity: 1;
+}
+
+.prototype[data-failed] {
+  display: none;
+}
+
+/* The paper card stands on the tray floor, overlapping the screenshot from
+   the front-right the way a physical card would. Sized against the tray, not
+   the designed card: in the mockup it is a small object in front of the
+   laptop, about a fifth of the product's width. */
+.mini {
+  --mini-w: 18cqw;
+  position: absolute;
+  right: 7%;
+  bottom: 32%;
+  width: var(--mini-w);
+  height: 0;
+  pointer-events: none;
+}
+
+.mini > * {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  transform-origin: right bottom;
+  transform: scale(calc(var(--mini-w) / 480px));
+}
+
+/* Detail view: the shelf has receded, so the screenshot sits in the room
+   on its own. Flex centres it — GSAP owns `transform` on the screens
+   during the split, and a CSS translate would be overwritten to 0. */
+.stageServing {
+  --room-w: min(96cqw, 128cqh);
+  --room-h: min(76cqw, 84cqh);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stageServing .screens {
+  position: relative;
+  left: auto;
+  top: auto;
+  bottom: auto;
+  transform: none;
+}

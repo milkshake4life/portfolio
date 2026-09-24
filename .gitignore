@@ -31,7 +31,6 @@ __pycache__/
 # misc
 .DS_Store
 *.pem
-scripts/gallery-debug.png
 
 # debug
 npm-debug.log*

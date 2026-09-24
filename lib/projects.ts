@@ -4,6 +4,65 @@ export type ProjectCategory =
   | "single-origin"
   | "sides";
 
+/**
+ * A screenshot exactly as it was exported — shown flat, never tilted or
+ * cropped. Intrinsic pixels come along so the strip can hold the aspect ratio.
+ */
+export type ProjectScreen = {
+  src: string;
+  width: number;
+  height: number;
+  /**
+   * Trim against the other screenshots on the shelf, where 1 is the default
+   * fit. Exports frame their device differently — a single phone sits tall
+   * inside its canvas, Timing is a flat board rather than a device — so
+   * this is what makes every project read at one scale, tray to tray.
+   */
+  trayFit?: number;
+};
+
+export type DeviceKind = "laptop" | "phone" | "board";
+
+/** Screen well as a percentage of the device PNG. */
+export type PrototypeScreen = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+};
+
+export type ProjectPrototype = {
+  /** Screen recording only — no device chrome. */
+  src: string;
+  /** Override when the PNG is not a standard laptop / phone / board. */
+  screen?: PrototypeScreen;
+};
+
+/**
+ * Inner LCD of the shared Apple mockups. Laptop measured on Unbounded;
+ * phone measured on the flat iPhone 15 stills.
+ */
+export const DEVICE_SCREEN_PRESETS: Record<DeviceKind, PrototypeScreen> = {
+  laptop: { x: 9.4, y: 5.1, w: 81.2, h: 87.5 },
+  phone: { x: 5.6, y: 2.4, w: 89.1, h: 95.4 },
+  board: { x: 0, y: 0, w: 100, h: 100 },
+};
+
+const DEVICE_WELL_RADIUS: Record<DeviceKind, string> = {
+  laptop: "1.35%",
+  phone: "12.5%",
+  board: "0.35%",
+};
+
+export function getPrototypeWell(project: Pick<Project, "device" | "prototype">) {
+  if (!project.prototype?.src) return null;
+  const device = project.device ?? "laptop";
+  return {
+    screen: project.prototype.screen ?? DEVICE_SCREEN_PRESETS[device],
+    radius: DEVICE_WELL_RADIUS[device],
+  };
+}
+
 export type Project = {
   slug: string;
   title: string;
@@ -16,14 +75,20 @@ export type Project = {
   summary: string;
   /** Hero / drink image on the works serving + case study cover */
   cover: string;
-  /** Optional hero width/height ratio (e.g. "1024 / 767") — defaults to Scope phones */
-  heroAspectRatio?: string;
-  /** Scale the menu hero relative to the default phone slot (1 = default) */
-  heroScale?: number;
+  /**
+   * What the Work strip shows: the screenshot(s), flat, resting on one shared
+   * tray shape drawn in CSS (see components/gallery/TrayStage.tsx).
+   */
+  screens: ProjectScreen[];
+  /** Device chrome in the tray still — drives the lightbox video well. */
+  device?: DeviceKind;
+  /**
+   * Looping screen recording punched into the device after the lightbox
+   * split. Omit until the file exists; the still stays up.
+   */
+  prototype?: ProjectPrototype;
   /** Case-study images, in order */
   images: string[];
-  /** Small line under the name on the menu (optional) */
-  menuNote?: string;
   /** Profile-card tasting note — short sensory / outcome line */
   notes?: string;
   /** Longer “The Story” blurb on the drink profile card */
@@ -32,8 +97,6 @@ export type Project = {
   recognition?: string;
   /** Profile type label — defaults to “Case Study” */
   profile?: string;
-  /** Optional override for the footer index (otherwise counted within cardKind) */
-  caseNumber?: string;
   /** Profile-card heading — defaults to title (menu can stay longer) */
   cardTitle?: string;
   /** Slightly smaller profile title so a long word does not fill the card */
@@ -51,8 +114,7 @@ export type CardKind =
   | "internship"
   | "product-work"
   | "case-study"
-  | "course"
-  | "leadership";
+  | "course";
 
 const CARD_KIND_COPY: Record<
   CardKind,
@@ -62,7 +124,6 @@ const CARD_KIND_COPY: Record<
   "product-work": { eyebrow: "Product Work", collection: "Product Work" },
   "case-study": { eyebrow: "Case Study", collection: "Case Studies" },
   course: { eyebrow: "Course", collection: "Courses" },
-  leadership: { eyebrow: "Leadership", collection: "Leadership" },
 };
 
 /** Menu section order + labels. Sides stays in the data, off this sheet. */
@@ -98,10 +159,14 @@ export const projects: Project[] = [
       "A 12-week paid internship building an internal planning tool for a nonprofit coordinating school district events. I designed a facilitator dashboard that consolidated outreach and scheduling, tracking who was teaching what and reaching every known facilitator in one place. The tool is now used by the organization.",
     summary:
       "A placeholder case study. Replace with a short, quiet summary of the problem, your role, and the outcome — two or three sentences at most.",
-    cover: "/images/projects/unbounded/hero-2x.png",
-    heroAspectRatio: "2066 / 1316",
+    cover: "/images/projects/unbounded/hero-flat.png",
+    device: "laptop",
+    prototype: { src: "/videos/projects/unbounded/prototype.mp4" },
+    screens: [
+      { src: "/images/projects/unbounded/hero-flat.png", width: 2010, height: 1284 },
+    ],
     images: [
-      "/images/projects/unbounded/hero-2x.png",
+      "/images/projects/unbounded/hero-flat.png",
     ],
   },
   {
@@ -119,9 +184,18 @@ export const projects: Project[] = [
       "Resell, built with Cornell AppDev, brings secondhand shopping to Cornell students in one dedicated marketplace. I reworked the core experience end-to-end — from event-specific spaces that surface listings for moments like Homecoming and Halloween, to the Lucid release, which introduced fluid animations and a glassy new visual layer across the app.",
     summary:
       "A placeholder case study. Replace with a short, quiet summary of the problem, your role, and the outcome — two or three sentences at most.",
-    cover: "/images/projects/resell/hero-clean.png",
+    cover: "/images/projects/resell/hero-flat.png",
+    device: "phone",
+    screens: [
+      {
+        src: "/images/projects/resell/hero-flat.png",
+        width: 749,
+        height: 1513,
+        trayFit: 0.98,
+      },
+    ],
     images: [
-      "/images/projects/resell/hero-clean.png",
+      "/images/projects/resell/hero-flat.png",
     ],
   },
   {
@@ -139,10 +213,18 @@ export const projects: Project[] = [
       "A 12-week internship on a team of product designers, where I led the redesign of Timing's entire design system. I rebuilt it around reusable components, giving the team a systemized foundation that makes designing new features faster and more consistent going forward.",
     summary:
       "A placeholder case study. Replace with a short, quiet summary of the problem, your role, and the outcome — two or three sentences at most.",
-    cover: "/images/projects/timing/hero-2x.png",
-    heroAspectRatio: "2072 / 1172",
+    cover: "/images/projects/timing/hero-flat.png",
+    device: "board",
+    screens: [
+      {
+        src: "/images/projects/timing/hero-flat.png",
+        width: 769,
+        height: 462,
+        trayFit: 0.98,
+      },
+    ],
     images: [
-      "/images/projects/timing/hero-2x.png",
+      "/images/projects/timing/hero-flat.png",
     ],
   },
   {
@@ -162,10 +244,14 @@ export const projects: Project[] = [
       "IMA (Internal Members Archive) gives every Hack4Impact chapter nationwide a shared home for past projects and the members behind them, making it easy to look back and reach out. Working alongside three designers on my team and Hack4Impact's national design members, I helped design the product from the ground up.",
     summary:
       "A placeholder case study. Replace with a short, quiet summary of the problem, your role, and the outcome — two or three sentences at most.",
-    cover: "/images/projects/hack4impact/hero-2x.png",
-    heroAspectRatio: "2066 / 1266",
+    cover: "/images/projects/hack4impact/hero-flat.png",
+    device: "laptop",
+    prototype: { src: "/videos/projects/hack4impact/prototype.mp4" },
+    screens: [
+      { src: "/images/projects/hack4impact/hero-flat.png", width: 2129, height: 1308 },
+    ],
     images: [
-      "/images/projects/hack4impact/hero-2x.png",
+      "/images/projects/hack4impact/hero-flat.png",
     ],
   },
   {
@@ -184,9 +270,18 @@ export const projects: Project[] = [
       "Cornell students have few ways to explore outside their own major — packed schedules rule out extra classes, and clubs stay nearly impossible to join. Studio lets students teach each other, turning personal passions into peer-led classes and the connections that follow.",
     summary:
       "A placeholder case study. Replace with a short, quiet summary of the problem, your role, and the outcome — two or three sentences at most.",
-    cover: "/images/projects/studio/hero-clean.png",
+    cover: "/images/projects/studio/hero-flat.png",
+    device: "phone",
+    screens: [
+      {
+        src: "/images/projects/studio/hero-flat.png",
+        width: 790,
+        height: 1598,
+        trayFit: 0.98,
+      },
+    ],
     images: [
-      "/images/projects/studio/hero-clean.png",
+      "/images/projects/studio/hero-flat.png",
     ],
   },
   {
@@ -205,10 +300,18 @@ export const projects: Project[] = [
       "Cornell students were tuning out campus news entirely, buried in cluttered inboxes and scattered across broken apps. Scope consolidates it all into one feed, built to fit into the pockets of time students already have.",
     summary:
       "A news outlet product for Cornell students — redesigning how campus journalism is discovered, read, and saved.",
-    cover: "/images/projects/scope/hero-clean.png",
+    cover: "/images/projects/scope/hero-flat.png",
+    device: "phone",
+    screens: [
+      {
+        src: "/images/projects/scope/hero-flat.png",
+        width: 615,
+        height: 1242,
+        trayFit: 0.98,
+      },
+    ],
     images: [
-      "/images/projects/scope/hero-clean.png",
-      "/images/projects/scope/cover.jpg",
+      "/images/projects/scope/hero-flat.png",
     ],
   },
   {
@@ -229,34 +332,12 @@ export const projects: Project[] = [
       "Intro to Digital Product Design is a semester-long course run through Cornell AppDev, teaching 30 students Figma and product thinking, building toward professional-level case studies they can carry into internships and resumes. I helped modernize the curriculum for current design standards: introducing AI into the prototyping workflow, and restructuring critique groups into tighter, family-style pods so students build closer relationships with their TAs and peers.",
     summary:
       "A placeholder case study. Replace with a short, quiet summary of the problem, your role, and the outcome — two or three sentences at most.",
-    cover: "/images/projects/dpd/hero-clean.png",
-    heroAspectRatio: "941 / 1048",
-    images: [
-      "/images/projects/dpd/hero-clean.png",
+    cover: "/images/projects/dpd/100_1626.jpg",
+    screens: [
+      { src: "/images/projects/dpd/100_1626.jpg", width: 1350, height: 1800 },
     ],
-  },
-  {
-    slug: "cuxd-eboard",
-    title: "CUxD Eboard",
-    cardTitleCompact: true,
-    dateRange: "8.25 - Curr.",
-    category: "sides",
-    year: "2025",
-    role: "External Operations Lead",
-    client: "CUxD",
-    notes: "Community-Wide, Nationwide, High-Scale",
-    notesCompact: true,
-    cardKind: "leadership",
-    profile: "",
-    story:
-      "As External Operations Lead for CUxD, I planned events for Cornell's entire design community: 10+ workshops, panels, and socials, plus our nationwide annual design-a-thon. Coordinating this meant reaching out to 30+ judges and speakers and drawing participation from 50+ universities and design organizations.",
-    summary:
-      "A placeholder case study. Replace with a short, quiet summary of the problem, your role, and the outcome — two or three sentences at most.",
-    cover: "/images/projects/cuxd/hero-clean.png",
-    heroAspectRatio: "1048 / 1025",
-    heroScale: 1.16,
     images: [
-      "/images/projects/cuxd/hero-clean.png",
+      "/images/projects/dpd/100_1626.jpg",
     ],
   },
 ];
@@ -265,8 +346,7 @@ export function getCardMeta(project: Project) {
   const kind = project.cardKind ?? "case-study";
   const { eyebrow, collection } = CARD_KIND_COPY[kind];
   const index = projects.findIndex((p) => p.slug === project.slug);
-  const number =
-    project.caseNumber ?? String(Math.max(index, 0) + 1).padStart(2, "0");
+  const number = String(Math.max(index, 0) + 1).padStart(2, "0");
   return { kind, eyebrow, collection, number };
 }
 

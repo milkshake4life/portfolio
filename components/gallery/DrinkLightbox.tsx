@@ -8,9 +8,11 @@ import { useLenis } from "lenis/react";
 import {
   cardFocusNumbers,
   cardFocusVars,
-  type Drink,
-} from "@/lib/drinks";
+  type GalleryEntry,
+} from "@/lib/gallery";
 import { EASE, DUR, MORPH, SLIDE, JOURNAL } from "@/lib/motion";
+import TrayStage from "@/components/gallery/TrayStage";
+import ProfileCard from "@/components/works/ProfileCard";
 import styles from "./DrinkLightbox.module.css";
 
 export type LightboxOrigin = {
@@ -20,13 +22,22 @@ export type LightboxOrigin = {
   height: number;
 };
 
+export type LightboxOriginParts = {
+  product: LightboxOrigin;
+  card: LightboxOrigin | null;
+};
+
 type DrinkLightboxProps = {
-  drinks: Drink[];
+  entries: GalleryEntry[];
+  thumbsLabel: string;
   activeIndex: number;
   originRect: LightboxOrigin | null;
+  originParts: LightboxOriginParts | null;
   getOriginRect: (index: number) => LightboxOrigin | null;
+  getOriginParts: (index: number) => LightboxOriginParts | null;
   syncGalleryToIndex: (index: number) => void;
   onClose: () => void;
+  onCloseBegin: () => void;
   onChange: (index: number) => void;
 };
 
@@ -88,14 +99,72 @@ function slideOffset(index: number, step: number) {
   return -index * step;
 }
 
+function isServing(entry: GalleryEntry) {
+  return Boolean(entry.project && entry.screens);
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function syncPrototypeVideos(
+  track: HTMLElement,
+  activeIndex: number,
+  live: boolean
+) {
+  Array.from(track.children).forEach((slide, i) => {
+    const video = slide.querySelector<HTMLVideoElement>(
+      "[data-prototype-video]"
+    );
+    if (!video) return;
+
+    if (live && i === activeIndex) {
+      video.dataset.active = "";
+      void video.play().catch(() => {});
+      return;
+    }
+
+    delete video.dataset.active;
+    video.pause();
+    if (!live) {
+      try {
+        video.currentTime = 0;
+      } catch {
+        /* media not ready */
+      }
+    }
+  });
+}
+
+function servingNodes(track: HTMLElement, index: number) {
+  const slide = track.children[index] as HTMLElement | undefined;
+  if (!slide) return { product: null, card: null };
+  return {
+    product: slide.querySelector<HTMLElement>("[data-tray-screens]"),
+    card: slide.querySelector<HTMLElement>("[data-profile-card]"),
+  };
+}
+
+function placeFromRect(el: HTMLElement, from: LightboxOrigin) {
+  gsap.set(el, { clearProps: "transform,x,y,scale,scaleX,scaleY" });
+  const to = el.getBoundingClientRect();
+  gsap.set(el, {
+    x: from.left - to.left,
+    y: from.top - to.top,
+    scaleX: from.width / Math.max(1, to.width),
+    scaleY: from.height / Math.max(1, to.height),
+    transformOrigin: "0 0",
+  });
+}
+
 function tweenCrop(
   el: HTMLElement,
-  drink: Drink,
+  entry: GalleryEntry,
   toCard: boolean,
   duration: number,
   ease: string
 ) {
-  const focus = cardFocusNumbers(drink.cardFocus);
+  const focus = cardFocusNumbers(entry.cardFocus);
   if (!focus) return;
 
   gsap.to(el, {
@@ -124,12 +193,16 @@ function animateSlide(
 }
 
 export default function DrinkLightbox({
-  drinks,
+  entries,
+  thumbsLabel,
   activeIndex,
   originRect,
+  originParts,
   getOriginRect,
+  getOriginParts,
   syncGalleryToIndex,
   onClose,
+  onCloseBegin,
   onChange,
 }: DrinkLightboxProps) {
   const scope = useRef<HTMLDivElement>(null);
@@ -145,10 +218,11 @@ export default function DrinkLightbox({
   const activeIndexRef = useRef(activeIndex);
   const openTimelineRef = useRef<gsap.core.Timeline | null>(null);
   const [morphDisplayIndex, setMorphDisplayIndex] = useState(activeIndex);
+  const [prototypeLive, setPrototypeLive] = useState(false);
   activeIndexRef.current = activeIndex;
-  const total = drinks.length;
-  const drink = drinks[activeIndex];
-  const morphDrink = drinks[morphDisplayIndex];
+  const total = entries.length;
+  const entry = entries[activeIndex];
+  const morphEntry = entries[morphDisplayIndex];
   const lenis = useLenis();
   const canGoPrev = activeIndex > 0;
   const canGoNext = activeIndex < total - 1;
@@ -219,6 +293,9 @@ export default function DrinkLightbox({
     if (track) {
       const step = syncSlideStep(wrap);
       gsap.set(track, { autoAlpha: 1 });
+      const { product, card } = servingNodes(track, activeIndexRef.current);
+      if (product) gsap.set(product, { clearProps: "transform,x,y,scale,scaleX,scaleY" });
+      if (card) gsap.set(card, { clearProps: "transform,x,y,scale,scaleX,scaleY" });
       if (!preserveTrackPosition) {
         const index = activeIndexRef.current;
         gsap.set(track, { x: slideOffset(index, step) });
@@ -227,11 +304,16 @@ export default function DrinkLightbox({
     }
 
     canCloseRef.current = true;
+    if (!prefersReducedMotion()) setPrototypeLive(true);
   }, []);
 
   const animateClose = useCallback(() => {
     if (closingRef.current || !canCloseRef.current) return;
     closingRef.current = true;
+    setPrototypeLive(false);
+    if (slideTrackRef.current) {
+      syncPrototypeVideos(slideTrackRef.current, activeIndex, false);
+    }
 
     // Release the chrome legibility treatment now (not at unmount) so the
     // wordmark/counter cross-fade back in step with the zoom-out.
@@ -240,7 +322,9 @@ export default function DrinkLightbox({
     const wrap = imageWrapRef.current;
     const root = scope.current;
     syncGalleryToIndex(activeIndex);
+    onCloseBegin();
     const origin = getOriginRect(activeIndex);
+    const parts = getOriginParts(activeIndex);
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
@@ -253,6 +337,7 @@ export default function DrinkLightbox({
 
     const morph = morphLayerRef.current;
     const track = slideTrackRef.current;
+    const serving = isServing(entries[activeIndex]);
 
     if (!wrap || !root || !origin || reduced) {
       gsap.to(root, { opacity: 0, duration: DUR.fast, onComplete: finish });
@@ -264,6 +349,57 @@ export default function DrinkLightbox({
       duration: DUR.fast,
       ease: EASE.out,
     });
+
+    if (serving && parts && track) {
+      const { product, card } = servingNodes(track, activeIndex);
+      const tl = gsap.timeline({ onComplete: finish });
+      if (product) {
+        const from = product.getBoundingClientRect();
+        const scaleX = Number(gsap.getProperty(product, "scaleX")) || 1;
+        const scaleY = Number(gsap.getProperty(product, "scaleY")) || 1;
+        tl.to(
+          product,
+          {
+            x: `+=${parts.product.left - from.left}`,
+            y: `+=${parts.product.top - from.top}`,
+            scaleX: scaleX * (parts.product.width / Math.max(1, from.width)),
+            scaleY: scaleY * (parts.product.height / Math.max(1, from.height)),
+            transformOrigin: "0 0",
+            duration: MORPH.splitDuration,
+            ease: MORPH.closeEase,
+          },
+          0
+        );
+      }
+      if (card && parts.card) {
+        const from = card.getBoundingClientRect();
+        const scaleX = Number(gsap.getProperty(card, "scaleX")) || 1;
+        const scaleY = Number(gsap.getProperty(card, "scaleY")) || 1;
+        tl.to(
+          card,
+          {
+            x: `+=${parts.card.left - from.left}`,
+            y: `+=${parts.card.top - from.top}`,
+            scaleX: scaleX * (parts.card.width / Math.max(1, from.width)),
+            scaleY: scaleY * (parts.card.height / Math.max(1, from.height)),
+            transformOrigin: "0 0",
+            duration: MORPH.splitDuration,
+            ease: MORPH.closeEase,
+          },
+          0
+        );
+      }
+      tl.to(
+        root,
+        {
+          backgroundColor: "rgba(10, 10, 10, 0)",
+          duration: MORPH.closeDuration,
+          ease: MORPH.closeEase,
+        },
+        0
+      );
+      return;
+    }
 
     flushSync(() => setMorphDisplayIndex(activeIndex));
 
@@ -277,7 +413,7 @@ export default function DrinkLightbox({
       });
       tweenCrop(
         morph,
-        drinks[activeIndex],
+        entries[activeIndex],
         true,
         MORPH.closeDuration,
         MORPH.closeEase
@@ -309,7 +445,15 @@ export default function DrinkLightbox({
         },
         0
       );
-  }, [activeIndex, drinks, getOriginRect, onClose, syncGalleryToIndex]);
+  }, [
+    activeIndex,
+    entries,
+    getOriginParts,
+    getOriginRect,
+    onClose,
+    onCloseBegin,
+    syncGalleryToIndex,
+  ]);
 
   useLayoutEffect(() => {
     lockPageScroll();
@@ -322,6 +466,7 @@ export default function DrinkLightbox({
   }, [lenis]);
 
   // Grow the viewport clip from the clicked frame to fullscreen.
+  // Work serving: trays recede first, then the product and card split apart.
   useLayoutEffect(() => {
     const wrap = imageWrapRef.current;
     const morph = morphLayerRef.current;
@@ -337,15 +482,16 @@ export default function DrinkLightbox({
 
     const ui = root.querySelectorAll("[data-lightbox-ui]");
     const { width, height } = viewportSize();
+    const serving = isServing(entries[activeIndex]);
 
     if (track) {
       const step = syncSlideStep(wrap);
       gsap.set(track, { x: slideOffset(activeIndex, step), autoAlpha: 0 });
     }
     if (morph) {
-      const focus = cardFocusNumbers(drinks[activeIndex].cardFocus);
+      const focus = cardFocusNumbers(entries[activeIndex].cardFocus);
       gsap.set(morph, {
-        autoAlpha: 1,
+        autoAlpha: serving ? 0 : 1,
         ...(focus
           ? {
               "--card-x": focus.x,
@@ -365,14 +511,90 @@ export default function DrinkLightbox({
       playJournal();
       canCloseRef.current = true;
       prevIndexRef.current = activeIndexRef.current;
+      if (!reduced) setPrototypeLive(true);
       return;
+    }
+
+    gsap.set(ui, { opacity: 0 });
+    hideJournal();
+
+    if (serving && originParts && track) {
+      setWrapBounds(wrap, "fullscreen");
+      gsap.set(root, { backgroundColor: "rgba(10, 10, 10, 0)" });
+      const step = syncSlideStep(wrap);
+      gsap.set(track, { x: slideOffset(activeIndex, step), autoAlpha: 1 });
+      if (morph) gsap.set(morph, { autoAlpha: 0 });
+
+      const { product, card } = servingNodes(track, activeIndex);
+      if (product) placeFromRect(product, originParts.product);
+      if (card && originParts.card) placeFromRect(card, originParts.card);
+
+      const splitAt = MORPH.fadeDuration + MORPH.splitHold;
+      const tl = gsap.timeline({
+        onComplete: () => {
+          finalizeOpen();
+        },
+      });
+      openTimelineRef.current = tl;
+
+      tl.to(
+        root,
+        {
+          backgroundColor: "rgb(10, 10, 10)",
+          duration: MORPH.splitDuration,
+          ease: MORPH.splitEase,
+        },
+        splitAt
+      );
+
+      if (product) {
+        tl.to(
+          product,
+          {
+            x: 0,
+            y: 0,
+            scaleX: 1,
+            scaleY: 1,
+            duration: MORPH.splitDuration,
+            ease: MORPH.splitEase,
+          },
+          splitAt
+        );
+      }
+      if (card) {
+        tl.to(
+          card,
+          {
+            x: 0,
+            y: 0,
+            scaleX: 1,
+            scaleY: 1,
+            duration: MORPH.splitDuration,
+            ease: MORPH.splitEase,
+          },
+          splitAt
+        );
+      }
+
+      tl.to(
+        ui,
+        {
+          opacity: 1,
+          duration: DUR.base,
+          ease: EASE.out,
+        },
+        splitAt + MORPH.splitDuration * 0.45
+      );
+
+      return () => {
+        openTimelineRef.current?.kill();
+        openTimelineRef.current = null;
+      };
     }
 
     const startRect = getOriginRect(activeIndex) ?? originRect;
     setWrapBounds(wrap, startRect);
     gsap.set(root, { backgroundColor: "rgba(10, 10, 10, 0)" });
-    gsap.set(ui, { opacity: 0 });
-    hideJournal();
 
     const tl = gsap.timeline({
       onComplete: () => {
@@ -416,7 +638,7 @@ export default function DrinkLightbox({
     if (morph) {
       tweenCrop(
         morph,
-        drinks[activeIndex],
+        entries[activeIndex],
         false,
         MORPH.openDuration,
         MORPH.openEase
@@ -487,6 +709,13 @@ export default function DrinkLightbox({
   }, [activeIndex]);
 
   useEffect(() => {
+    const track = slideTrackRef.current;
+    if (!track) return;
+    syncPrototypeVideos(track, activeIndex, prototypeLive);
+    return () => syncPrototypeVideos(track, activeIndex, false);
+  }, [activeIndex, prototypeLive]);
+
+  useEffect(() => {
     const strip = thumbsRef.current;
     const activeThumb = thumbRefs.current[activeIndex];
     if (!strip || !activeThumb) return;
@@ -512,7 +741,7 @@ export default function DrinkLightbox({
       className={styles.lightbox}
       role="dialog"
       aria-modal="true"
-      aria-label={`${drink.name} — full view`}
+      aria-label={`${entry.name} — full view`}
     >
       <div ref={imageWrapRef} className={styles.imageWrap} onClick={animateClose}>
         <div
@@ -520,76 +749,138 @@ export default function DrinkLightbox({
           className={`${styles.morphLayer} ${styles.cardCrop}`}
           aria-hidden="true"
         >
-          <Image
-            src={morphDrink.image}
-            alt=""
-            fill
-            sizes="100vw"
-            priority
-          />
+          {morphEntry.screens ? (
+            <TrayStage
+              screens={morphEntry.screens}
+              alt=""
+              sizes="78vw"
+              priority
+              card={
+                morphEntry.project ? (
+                  <ProfileCard project={morphEntry.project} />
+                ) : null
+              }
+            />
+          ) : (
+            <Image
+              src={morphEntry.image}
+              alt=""
+              fill
+              sizes="100vw"
+              priority
+              unoptimized={morphEntry.unoptimized}
+            />
+          )}
         </div>
         <div ref={slideTrackRef} className={styles.slideTrack}>
-          {drinks.map((item, i) => (
+          {entries.map((item, i) => (
             <div key={item.id} className={styles.slide}>
-              <Image
-                src={item.image}
-                alt={
-                  i === activeIndex ? `${item.name} — ${item.notes}` : ""
-                }
-                fill
-                sizes="100vw"
-                priority={Math.abs(i - activeIndex) <= 1}
-                aria-hidden={i !== activeIndex}
-              />
+              {item.project && item.screens ? (
+                <div className={styles.serving}>
+                  <div className={styles.servingProduct}>
+                    <TrayStage
+                      screens={item.screens}
+                      alt={
+                        i === activeIndex
+                          ? item.name
+                          : ""
+                      }
+                      sizes="64vw"
+                      priority={Math.abs(i - activeIndex) <= 1}
+                      shelf={false}
+                      project={item.project}
+                      live={!prefersReducedMotion()}
+                      playing={prototypeLive && i === activeIndex}
+                      preload={
+                        Math.abs(i - activeIndex) <= 1 ? "metadata" : "none"
+                      }
+                    />
+                  </div>
+                  <div className={styles.servingCard}>
+                    <ProfileCard project={item.project} />
+                  </div>
+                </div>
+              ) : item.screens ? (
+                <TrayStage
+                  screens={item.screens}
+                  alt={
+                    i === activeIndex
+                      ? item.name
+                      : ""
+                  }
+                  sizes="78vw"
+                  priority={Math.abs(i - activeIndex) <= 1}
+                />
+              ) : (
+                <Image
+                  src={item.image}
+                  alt={
+                    i === activeIndex
+                      ? item.name
+                      : ""
+                  }
+                  fill
+                  sizes="100vw"
+                  priority={Math.abs(i - activeIndex) <= 1}
+                  aria-hidden={i !== activeIndex}
+                  unoptimized={item.unoptimized}
+                />
+              )}
             </div>
           ))}
         </div>
       </div>
 
+      {!entry.project ? (
       <aside
         data-lightbox-ui
         className={styles.journal}
-        aria-label={`${drink.name} — journal entry`}
+        aria-label={`${entry.name} — journal entry`}
       >
         <div ref={journalInnerRef} className={styles.journalInner}>
           <p className={styles.journalEyebrow}>
-            No. {String(activeIndex + 1).padStart(2, "0")} · {drink.category}
+            No. {String(activeIndex + 1).padStart(2, "0")} · {entry.journal.category}
           </p>
-          <h2 className={styles.journalName}>{drink.name}</h2>
-          <p className={styles.journalSub}>{drink.origin}</p>
-          <p className={styles.journalSub}>{drink.method}</p>
+          <h2 className={styles.journalName}>{entry.name}</h2>
+          {entry.journal.sublines.map((line) => (
+            <p key={line} className={styles.journalSub}>
+              {line}
+            </p>
+          ))}
 
           <span className={styles.journalRule} aria-hidden="true" />
 
-          <p className={styles.journalEntry}>{drink.entry}</p>
+          <p className={styles.journalEntry}>{entry.journal.entry}</p>
 
           <span className={styles.journalRule} aria-hidden="true" />
 
           <dl className={styles.journalMeta}>
-            <div>
-              <dt>Brewed</dt>
-              <dd>{drink.place}</dd>
-            </div>
-            <div>
-              <dt>On</dt>
-              <dd>{drink.date}</dd>
-            </div>
-            <div>
-              <dt>For</dt>
-              <dd>{drink.occasion}</dd>
-            </div>
+            {entry.journal.meta.map((row) => (
+              <div key={row.label}>
+                <dt>{row.label}</dt>
+                <dd>{row.value}</dd>
+              </div>
+            ))}
           </dl>
         </div>
       </aside>
+      ) : null}
 
+      {entry.project ? (
+        <p data-lightbox-ui className={styles.closeHint}>
+          Click or press Escape to close
+        </p>
+      ) : null}
+
+      {!entry.project ? (
       <div
         ref={thumbsRef}
         data-lightbox-ui
         className={styles.thumbs}
         role="tablist"
-        aria-label="All drinks"
+        aria-label={thumbsLabel}
       >
-        {drinks.map((item, i) => (
+        {entries.map((item, i) => (
           <button
             key={item.id}
             ref={(el) => {
@@ -614,10 +905,12 @@ export default function DrinkLightbox({
               fill
               sizes="80px"
               aria-hidden="true"
+              unoptimized={item.unoptimized}
             />
           </button>
         ))}
       </div>
+      ) : null}
     </div>
   );
 }

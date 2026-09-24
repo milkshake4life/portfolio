@@ -75,7 +75,7 @@ export const STRIP = {
   /** Released mid-throw, so this one does start fast and run out long */
   flingEase: "expo.out",
   /** How much the centred work tray grows */
-  focusScale: 0.42,
+  focusScale: 0.5,
   /** Coffee photographs keep the original, smaller spotlight */
   photoFocusScale: 0.28,
   /** Neighbours recede a little so the centred card reads as the one in front */

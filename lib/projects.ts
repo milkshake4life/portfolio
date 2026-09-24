@@ -1,5 +1,3 @@
-import type { CardFocus } from "@/lib/drinks";
-
 export type ProjectCategory =
   | "seasonal"
   | "specialty"
@@ -45,8 +43,8 @@ export type ProjectPrototype = {
  * phone measured on the flat iPhone 15 stills.
  */
 export const DEVICE_SCREEN_PRESETS: Record<DeviceKind, PrototypeScreen> = {
-  laptop: { x: 10.16, y: 5.78, w: 79.72, h: 82.14 },
-  phone: { x: 6.2, y: 2.4, w: 87.6, h: 95.4 },
+  laptop: { x: 9.4, y: 5.1, w: 81.2, h: 87.5 },
+  phone: { x: 5.6, y: 2.4, w: 89.1, h: 95.4 },
   board: { x: 0, y: 0, w: 100, h: 100 },
 };
 
@@ -89,14 +87,8 @@ export type Project = {
    * split. Omit until the file exists; the still stays up.
    */
   prototype?: ProjectPrototype;
-  /** Optional hero width/height ratio (e.g. "1024 / 767") — defaults to Scope phones */
-  heroAspectRatio?: string;
-  /** Scale the menu hero relative to the default phone slot (1 = default) */
-  heroScale?: number;
   /** Case-study images, in order */
   images: string[];
-  /** Small line under the name on the menu (optional) */
-  menuNote?: string;
   /** Profile-card tasting note — short sensory / outcome line */
   notes?: string;
   /** Longer “The Story” blurb on the drink profile card */
@@ -105,8 +97,6 @@ export type Project = {
   recognition?: string;
   /** Profile type label — defaults to “Case Study” */
   profile?: string;
-  /** Optional override for the footer index (otherwise counted within cardKind) */
-  caseNumber?: string;
   /** Profile-card heading — defaults to title (menu can stay longer) */
   cardTitle?: string;
   /** Slightly smaller profile title so a long word does not fill the card */
@@ -118,16 +108,13 @@ export type Project = {
   cardKind?: CardKind;
   /** Smaller notes so a long tasting line stays on one row */
   notesCompact?: boolean;
-  /** Tight crop for the work strip card (and lightbox thumbs) */
-  cardFocus?: CardFocus;
 };
 
 export type CardKind =
   | "internship"
   | "product-work"
   | "case-study"
-  | "course"
-  | "leadership";
+  | "course";
 
 const CARD_KIND_COPY: Record<
   CardKind,
@@ -137,7 +124,6 @@ const CARD_KIND_COPY: Record<
   "product-work": { eyebrow: "Product Work", collection: "Product Work" },
   "case-study": { eyebrow: "Case Study", collection: "Case Studies" },
   course: { eyebrow: "Course", collection: "Courses" },
-  leadership: { eyebrow: "Leadership", collection: "Leadership" },
 };
 
 /** Menu section order + labels. Sides stays in the data, off this sheet. */
@@ -173,15 +159,14 @@ export const projects: Project[] = [
       "A 12-week paid internship building an internal planning tool for a nonprofit coordinating school district events. I designed a facilitator dashboard that consolidated outreach and scheduling, tracking who was teaching what and reaching every known facilitator in one place. The tool is now used by the organization.",
     summary:
       "A placeholder case study. Replace with a short, quiet summary of the problem, your role, and the outcome — two or three sentences at most.",
-    cover: "/images/projects/unbounded/hero-2x.png",
+    cover: "/images/projects/unbounded/hero-flat.png",
     device: "laptop",
     prototype: { src: "/videos/projects/unbounded/prototype.mp4" },
     screens: [
-      { src: "/images/projects/unbounded/hero-2x.png", width: 2066, height: 1316 },
+      { src: "/images/projects/unbounded/hero-flat.png", width: 2010, height: 1284 },
     ],
-    heroAspectRatio: "2066 / 1316",
     images: [
-      "/images/projects/unbounded/hero-2x.png",
+      "/images/projects/unbounded/hero-flat.png",
     ],
   },
   {
@@ -204,9 +189,9 @@ export const projects: Project[] = [
     screens: [
       {
         src: "/images/projects/resell/hero-flat.png",
-        width: 507,
-        height: 1012,
-        trayFit: 0.86,
+        width: 749,
+        height: 1513,
+        trayFit: 0.98,
       },
     ],
     images: [
@@ -228,22 +213,18 @@ export const projects: Project[] = [
       "A 12-week internship on a team of product designers, where I led the redesign of Timing's entire design system. I rebuilt it around reusable components, giving the team a systemized foundation that makes designing new features faster and more consistent going forward.",
     summary:
       "A placeholder case study. Replace with a short, quiet summary of the problem, your role, and the outcome — two or three sentences at most.",
-    cover: "/images/projects/timing/hero.png",
+    cover: "/images/projects/timing/hero-flat.png",
     device: "board",
     screens: [
-      // A flat board rather than a device — pulled in a little so it does not
-      // out-weigh the laptops and phones it shares the shelf with. The export
-      // already carries Figma's frame outline, so the board reads as a frame.
       {
-        src: "/images/projects/timing/hero.png",
-        width: 736,
-        height: 445,
+        src: "/images/projects/timing/hero-flat.png",
+        width: 769,
+        height: 462,
         trayFit: 0.98,
       },
     ],
-    heroAspectRatio: "736 / 445",
     images: [
-      "/images/projects/timing/hero.png",
+      "/images/projects/timing/hero-flat.png",
     ],
   },
   {
@@ -267,9 +248,8 @@ export const projects: Project[] = [
     device: "laptop",
     prototype: { src: "/videos/projects/hack4impact/prototype.mp4" },
     screens: [
-      { src: "/images/projects/hack4impact/hero-flat.png", width: 1003, height: 619 },
+      { src: "/images/projects/hack4impact/hero-flat.png", width: 2129, height: 1308 },
     ],
-    heroAspectRatio: "1003 / 619",
     images: [
       "/images/projects/hack4impact/hero-flat.png",
     ],
@@ -295,9 +275,9 @@ export const projects: Project[] = [
     screens: [
       {
         src: "/images/projects/studio/hero-flat.png",
-        width: 476,
-        height: 958,
-        trayFit: 0.86,
+        width: 790,
+        height: 1598,
+        trayFit: 0.98,
       },
     ],
     images: [
@@ -325,14 +305,13 @@ export const projects: Project[] = [
     screens: [
       {
         src: "/images/projects/scope/hero-flat.png",
-        width: 508,
-        height: 1021,
-        trayFit: 0.86,
+        width: 615,
+        height: 1242,
+        trayFit: 0.98,
       },
     ],
     images: [
       "/images/projects/scope/hero-flat.png",
-      "/images/projects/scope/cover.jpg",
     ],
   },
   {
@@ -353,13 +332,12 @@ export const projects: Project[] = [
       "Intro to Digital Product Design is a semester-long course run through Cornell AppDev, teaching 30 students Figma and product thinking, building toward professional-level case studies they can carry into internships and resumes. I helped modernize the curriculum for current design standards: introducing AI into the prototyping workflow, and restructuring critique groups into tighter, family-style pods so students build closer relationships with their TAs and peers.",
     summary:
       "A placeholder case study. Replace with a short, quiet summary of the problem, your role, and the outcome — two or three sentences at most.",
-    cover: "/images/projects/dpd/IMG_1017.jpg",
+    cover: "/images/projects/dpd/100_1626.jpg",
     screens: [
-      { src: "/images/projects/dpd/IMG_1017.jpg", width: 4096, height: 3478 },
+      { src: "/images/projects/dpd/100_1626.jpg", width: 1350, height: 1800 },
     ],
-    heroAspectRatio: "4096 / 3478",
     images: [
-      "/images/projects/dpd/IMG_1017.jpg",
+      "/images/projects/dpd/100_1626.jpg",
     ],
   },
 ];
@@ -368,8 +346,7 @@ export function getCardMeta(project: Project) {
   const kind = project.cardKind ?? "case-study";
   const { eyebrow, collection } = CARD_KIND_COPY[kind];
   const index = projects.findIndex((p) => p.slug === project.slug);
-  const number =
-    project.caseNumber ?? String(Math.max(index, 0) + 1).padStart(2, "0");
+  const number = String(Math.max(index, 0) + 1).padStart(2, "0");
   return { kind, eyebrow, collection, number };
 }
 

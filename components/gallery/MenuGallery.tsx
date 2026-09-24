@@ -88,6 +88,9 @@ export default function MenuGallery({
   const scheduleSettleRef = useRef<() => void>(() => {});
   const lightboxOpenRef = useRef(false);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [spotlight, setSpotlight] = useState(0);
+  const setSpotlightRef = useRef(setSpotlight);
+  setSpotlightRef.current = setSpotlight;
   const [dragging, setDragging] = useState(false);
   const [openOrigin, setOpenOrigin] = useState<LightboxOrigin | null>(null);
   const [openOriginParts, setOpenOriginParts] =
@@ -680,6 +683,7 @@ export default function MenuGallery({
           }
           items[nearest].setAttribute("data-spotlight", "");
           spotlightAt = nearest;
+          setSpotlightRef.current(nearest);
         }
       };
 
@@ -837,9 +841,19 @@ export default function MenuGallery({
                   {entry.screens ? (
                     <TrayStage
                       screens={entry.screens}
-                      alt={`${entry.name} — ${entry.captionNotes}`}
+                      alt={entry.name}
                       sizes="(max-width: 1099px) 60vw, 78vw"
                       priority={i < 3}
+                      project={entry.project}
+                      live={Boolean(entry.project?.prototype)}
+                      playing={
+                        spotlight === i &&
+                        activeIndex === null &&
+                        Boolean(entry.project?.prototype)
+                      }
+                      preload={
+                        Math.abs(spotlight - i) <= 1 ? "metadata" : "none"
+                      }
                       card={
                         entry.project ? (
                           <ProfileCard project={entry.project} />
@@ -849,7 +863,7 @@ export default function MenuGallery({
                   ) : (
                     <Image
                       src={entry.image}
-                      alt={`${entry.name} — ${entry.captionNotes}`}
+                      alt={entry.name}
                       fill
                       sizes="(max-width: 1099px) 70vw, (max-width: 1439px) 36vw, 42vw"
                       priority={i < 3}

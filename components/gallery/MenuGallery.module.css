@@ -44,13 +44,11 @@
   opacity: 0;
 }
 
-/* A project stands on a shelf drawn near the foot of its frame, so the frame
-   alone sits centred while the composition reads low. The whole tile — tray,
-   screenshot and caption together — rides up to put the composition, not the
-   empty frame, on the middle of the screen. Kept on `translate` so it composes
-   with the transform GSAP animates on reveal. */
+/* Previous shelf height, then a little higher so the tray and the caption
+   under it sit closer to the middle of the screen. `top` so GSAP's y on
+   the item does not overwrite the lift. */
 .itemTray {
-  translate: 0 calc(var(--photo-gallery-h) * -0.13);
+  top: calc(var(--photo-gallery-h) * -0.11);
 }
 
 .openBtn {
@@ -68,9 +66,8 @@
 }
 
 /* Scale and opacity are driven per frame from the strip's position — see the
-   focus pass in MenuGallery.tsx. The origin is the height the tray floor is
-   drawn at, so the centred card grows up out of the shelf line rather than
-   lifting off it, and the shelf stays unbroken across the strip. */
+   focus pass in MenuGallery.tsx. The origin is the tray floor, so the
+   centred card grows up out of the shelf rather than lifting off it. */
 .media {
   position: relative;
   height: var(--photo-gallery-h);
@@ -84,8 +81,7 @@
 }
 
 /* Project tiles are a composition on the page's own black, so the frame
-   itself never reads as a card edge. Scale from the tray floor so the
-   centred card grows up out of the shelf line rather than lifting off it. */
+   itself never reads as a card edge. */
 .mediaTray {
   background: var(--bg);
   transform-origin: 50% 92%;
@@ -125,6 +121,7 @@
   gap: var(--space-sm);
   opacity: 0;
   transform: translateY(6px);
+  transform-origin: 50% 0;
   transition: opacity var(--dur-base) var(--ease-out-expo),
     transform var(--dur-base) var(--ease-out-expo);
   pointer-events: none;
@@ -133,6 +130,7 @@
 .caption .captionIndex,
 .caption .captionNotes {
   font-size: var(--text-small);
+  transition: color var(--dur-base) var(--ease-out-expo);
 }
 
 .captionIndex {
@@ -177,12 +175,34 @@
     transform: scale(1.02);
   }
 
+  .openBtn:hover + .caption {
+    transform: translateY(0) scale(1.06);
+  }
+
+  .openBtn:hover + .caption .captionIndex,
+  .openBtn:hover + .caption .captionNotes {
+    color: #fff;
+  }
+
   .viewport[data-dragging="true"] .openBtn:hover .mediaTray > * {
     transform: none;
   }
 
+  .viewport[data-dragging="true"] .openBtn:hover + .caption {
+    transform: translateY(0);
+  }
+
+  .viewport[data-dragging="true"] .openBtn:hover + .caption .captionIndex,
+  .viewport[data-dragging="true"] .openBtn:hover + .caption .captionNotes {
+    color: inherit;
+  }
+
   .gallery[data-lightbox] .openBtn:hover .mediaTray > * {
     transform: none;
+  }
+
+  .gallery[data-lightbox] .openBtn:hover + .caption {
+    transform: translateY(6px);
   }
 }
 

@@ -1,7 +1,6 @@
 import {
   cardFocusNumbers,
   cardFocusVars,
-  drinks,
   type CardFocus,
 } from "@/lib/drinks";
 import {
@@ -43,30 +42,6 @@ export type GalleryEntry = {
   };
 };
 
-function fromDrink(
-  drink: (typeof drinks)[number]
-): GalleryEntry {
-  return {
-    id: drink.id,
-    name: drink.name,
-    image: drink.image,
-    captionKind: drink.category,
-    captionNotes: drink.notes,
-    cardFocus: drink.cardFocus,
-    unoptimized: drink.image.endsWith(".png"),
-    journal: {
-      category: drink.category,
-      sublines: [drink.origin, drink.method],
-      entry: drink.entry,
-      meta: [
-        { label: "Brewed", value: drink.place },
-        { label: "On", value: drink.date },
-        { label: "For", value: drink.occasion },
-      ],
-    },
-  };
-}
-
 function fromProject(project: Project): GalleryEntry {
   const { eyebrow } = getCardMeta(project);
   const sublines = [project.notes, project.recognition].filter(
@@ -80,8 +55,8 @@ function fromProject(project: Project): GalleryEntry {
     // ever the black background the tray composition sits on.
     image: project.screens[0].src,
     screens: project.screens,
-    captionKind: eyebrow,
-    captionNotes: project.notes ?? project.role,
+    captionKind: project.cardTitle ?? project.title,
+    captionNotes: "Click to see more",
     unoptimized: false,
     project,
     journal: {
@@ -96,8 +71,6 @@ function fromProject(project: Project): GalleryEntry {
     },
   };
 }
-
-export const DRINK_ENTRIES: GalleryEntry[] = drinks.map(fromDrink);
 
 /** Menu-sheet projects only — DPD stays on About. */
 export const WORK_ENTRIES: GalleryEntry[] = projectsByCategory().flatMap(

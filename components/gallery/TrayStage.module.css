@@ -4,6 +4,9 @@
   position: absolute;
   inset: 0;
   container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   /* Room a screenshot may take, and the gap between screenshots sharing one
      tray. Container units keep the proportions identical at every size; each
      bound is read against both axes so the same composition holds in a strip
@@ -16,8 +19,8 @@
   --tray-line: #dcdcdc;
 }
 
-/* The tray sits low in the frame at a fixed proportion, so the trays line up
-   from tile to tile however tall the screenshot above them is. */
+/* Shelf stays low in the tile so devices of different heights share one
+   floor. The strip then lifts the whole tile (tray + caption) together. */
 .tray {
   position: absolute;
   left: 4cqw;

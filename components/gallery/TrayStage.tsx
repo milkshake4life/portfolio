@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import Image from "next/image";
 import type { Project } from "@/lib/projects";
 import { getPrototypeWell } from "@/lib/projects";
@@ -42,14 +42,28 @@ export default function TrayStage({
   /** When false, only the screenshot remains — used after the tray recedes. */
   shelf?: boolean;
   project?: Project;
-  /** Mount the prototype video. Strip cards stay still. */
+  /** Mount the prototype video on the strip or after the lightbox split. */
   live?: boolean;
-  /** Fade the video in and let the parent start playback. */
+  /** Fade the video in and start playback. */
   playing?: boolean;
   preload?: "none" | "metadata" | "auto";
 }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
   const well = live && project ? getPrototypeWell(project) : null;
   const prototypeSrc = well ? project?.prototype?.src : undefined;
+  const playingRef = useRef(playing);
+  playingRef.current = playing;
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (playing && !reduced) {
+      void video.play().catch(() => {});
+      return;
+    }
+    video.pause();
+  }, [playing]);
 
   const screenRow = (
     <div className={styles.screens} data-tray-screens>
@@ -77,6 +91,7 @@ export default function TrayStage({
           />
           {well && prototypeSrc && i === 0 ? (
             <video
+              ref={videoRef}
               className={styles.prototype}
               data-prototype-video
               data-active={playing ? "" : undefined}
@@ -96,6 +111,7 @@ export default function TrayStage({
               }
               onCanPlay={(e) => {
                 e.currentTarget.dataset.ready = "";
+                if (playingRef.current) void e.currentTarget.play().catch(() => {});
               }}
               onError={(e) => {
                 e.currentTarget.dataset.failed = "";

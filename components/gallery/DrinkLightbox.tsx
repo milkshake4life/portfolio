@@ -782,7 +782,7 @@ export default function DrinkLightbox({
                       screens={item.screens}
                       alt={
                         i === activeIndex
-                          ? `${item.name} — ${item.captionNotes}`
+                          ? item.name
                           : ""
                       }
                       sizes="64vw"
@@ -805,7 +805,7 @@ export default function DrinkLightbox({
                   screens={item.screens}
                   alt={
                     i === activeIndex
-                      ? `${item.name} — ${item.captionNotes}`
+                      ? item.name
                       : ""
                   }
                   sizes="78vw"
@@ -816,7 +816,7 @@ export default function DrinkLightbox({
                   src={item.image}
                   alt={
                     i === activeIndex
-                      ? `${item.name} — ${item.captionNotes}`
+                      ? item.name
                       : ""
                   }
                   fill
